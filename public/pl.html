@@ -722,7 +722,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Profit & Loss Statement</h1>
-            <p>Fiscal Year Analysis</p>
+            <p><a href="https://linktr.ee/sudokuTrader" target="_blank" style="color: #ffffff; text-decoration: none;">https://linktr.ee/sudokuTrader (Verified P&L)</a></p>
             <div class="currency-toggle">
                 <label for="currencyFormat">Short Format</label>
                 <div class="toggle-switch">
@@ -2050,6 +2050,44 @@
                     });
                 }
 
+                // Fetch and integrate Delta Exchange data
+                const deltaExchangeData = await fetchDeltaExchangeData();
+                if (deltaExchangeData) {
+                    console.log('Integrating Delta Exchange data into fiscal years');
+                    formattedData.forEach(yearData => {
+                        // Convert fiscal year format from "2024-2025" to "2024-25" to match Firebase
+                        const fyParts = yearData.fiscalYear.split('-');
+                        const fyKey = `${fyParts[0]}-${fyParts[1].slice(-2)}`; // e.g., "2024-2025" -> "2024-25"
+
+                        console.log(`Checking Delta Exchange data for FY ${yearData.fiscalYear} (key: ${fyKey})`);
+
+                        if (deltaExchangeData[fyKey] !== undefined) {
+                            const deltaExchangeNTPL = deltaExchangeData[fyKey];
+                            console.log(`Adding Delta Exchange entry for FY ${fyKey}: ${deltaExchangeNTPL}`);
+
+                            // Create Delta Exchange entry
+                            const deltaExchangeEntry = {
+                                date: 'Delta Exchange',
+                                originalDate: 'Delta Exchange',
+                                billAmount: 0,
+                                expense: 0,
+                                expenseIsCalculated: false,
+                                grossProfit: 0,
+                                tpl: deltaExchangeNTPL,
+                                ntpl: deltaExchangeNTPL,
+                                trades: null
+                            };
+
+                            // Insert as first entry (unshift to add at beginning)
+                            yearData.dates.unshift(deltaExchangeEntry);
+
+                            // Update year totals
+                            yearData.totals.tpl += deltaExchangeNTPL;
+                            yearData.totals.ntpl += deltaExchangeNTPL;
+                        }
+                    });
+                }
+
                 return { data: formattedData, enhancedTradebook, matchedPositions };
 
             } catch (error) {
@@ -2072,6 +2110,23 @@
                 return data;
             } catch (error) {
                 console.error('Error fetching Groww data:', error);
+                return null;
+            }
+        };
+
+        // ===== FETCH DELTA EXCHANGE DATA FROM FIREBASE =====
+        const fetchDeltaExchangeData = async () => {
+            try {
+                const response = await fetch('https://bhavpc-default-rtdb.asia-southeast1.firebasedatabase.app/bhav_app_data/user/8129625121/deltaExchangeNTPL.json');
+                if (!response.ok) {
+                    console.error('Failed to fetch Delta Exchange data:', response.status);
+                    return null;
+                }
+                const data = await response.json();
+                console.log('Fetched Delta Exchange data:', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching Delta Exchange data:', error);
                 return null;
             }
         };
@@ -2391,7 +2446,7 @@
                                         <span class="trade-value">${formatCurrency(buyVal)}</span>
                                     </div>
                                     <div class="trade-detail">
-                                        <span class="trade-label">TPL</span>
+                                        <span class="trade-label">Trade P&L</span>
                                         <span class="trade-value ${buyExpTPL < 0 ? 'negative' : 'positive'}">${formatCurrency(buyExpTPL)}</span>
                                     </div>
                                 </div>
@@ -2412,7 +2467,7 @@
                                         <span class="trade-value">${formatCurrency(sellVal)}</span>
                                     </div>
                                     <div class="trade-detail">
-                                        <span class="trade-label">TPL</span>
+                                        <span class="trade-label">Trade P&L</span>
                                         <span class="trade-value ${sellTPL < 0 ? 'negative' : 'positive'}">${formatCurrency(sellTPL)}</span>
                                     </div>
                                 </div>
@@ -2447,7 +2502,7 @@
                                         <span class="trade-value">${formatCurrency(biggerValue)}</span>
                                     </div>
                                     <div class="trade-detail">
-                                        <span class="trade-label">TPL</span>
+                                        <span class="trade-label">Trade P&L</span>
                                         <span class="trade-value ${intradayTPL < 0 ? 'negative' : 'positive'}">${formatCurrency(intradayTPL)}</span>
                                     </div>
                                 </div>
@@ -2493,7 +2548,7 @@
                                         <span class="trade-value">${formatCurrency(remainingSellVal)}</span>
                                     </div>
                                     <div class="trade-detail">
-                                        <span class="trade-label">TPL</span>
+                                        <span class="trade-label">Trade P&L</span>
                                         <span class="trade-value ${sellTPL < 0 ? 'negative' : 'positive'}">${formatCurrency(sellTPL)}</span>
                                     </div>
                                 </div>
@@ -2568,14 +2623,14 @@
                             ${formatCurrency(dateData.billAmount)}
                         </td>
                         <td class="amount-col expense expense-red">${dateData.expenseIsCalculated ? '≈ ' : ''}${formatCurrency(dateData.expense)}</td>
+                        <td class="amount-col gross-profit ${dateData.grossProfit < 0 ? 'negative' : 'positive'}">
+                            ${dateData.billAmount === 0 ? 'NA' : formatCurrency(dateData.grossProfit)}
+                        </td>
                         <td class="amount-col tpl ${dateData.tpl < 0 ? 'negative' : 'positive'}">
                             ${formatCurrency(dateData.tpl)}
                         </td>
                         <td class="amount-col ntpl ${dateData.ntpl < 0 ? 'negative' : 'positive'}">
                             ${formatCurrency(dateData.ntpl)}
-                        </td>
-                        <td class="amount-col gross-profit ${dateData.grossProfit < 0 ? 'negative' : 'positive'}">
-                            ${dateData.billAmount === 0 ? 'NA' : formatCurrency(dateData.grossProfit)}
                         </td>
                     </tr>
                     ${hasTrades ? `<tr class="trades-row" id="trades-row-${uniqueId}"><td colspan="6">${tradesHTML}</td></tr>` : ''}
@@ -2588,7 +2643,7 @@
                         <div class="year-title">FY ${yearData.fiscalYear}</div>
                         <div class="year-summary">
                             <div class="summary-item">
-                                <span class="summary-label">Total Bills</span>
+                                <span class="summary-label">Net Bill</span>
                                 <span class="summary-value ${yearData.totals.billAmount < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(yearData.totals.billAmount)}
                                 </span>
@@ -2598,19 +2653,19 @@
                                 <span class="summary-value expense-red">${formatCurrency(yearData.totals.expense)}</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Gross Profit</span>
+                                <span class="summary-label">Gross Bill</span>
                                 <span class="summary-value ${yearData.totals.grossProfit < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(yearData.totals.grossProfit)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">TPL</span>
+                                <span class="summary-label">Trade P&L</span>
                                 <span class="summary-value ${yearData.totals.tpl < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(yearData.totals.tpl)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label"><strong>NTPL</strong></span>
+                                <span class="summary-label"><strong>Net P&L</strong></span>
                                 <span class="summary-value ntpl-value ${yearData.totals.ntpl < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(yearData.totals.ntpl)}
                                 </span>
@@ -2623,11 +2678,11 @@
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th style="text-align: right;">Bill Amount</th>
+                                    <th style="text-align: right;">Net Bill</th>
                                     <th style="text-align: right;">Expense</th>
-                                    <th style="text-align: right;">TPL</th>
-                                    <th style="text-align: right;"><strong>NTPL</strong></th>
-                                    <th style="text-align: right;">Gross Profit</th>
+                                    <th style="text-align: right;">Gross Bill</th>
+                                    <th style="text-align: right;">Trade P&L</th>
+                                    <th style="text-align: right;"><strong>Net P&L</strong></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2682,11 +2737,11 @@
 
             return `
                 <div class="year-item" style="margin-top: 25px;">
-                    <div class="year-header" style="background: linear-gradient(135deg, #f57c00 0%, #ff6f00 100%);">
+                    <div class="year-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <div class="year-title" style="font-size: 1.5em;">📊 ALL MATCHED POSITIONS (${matchedPositions.length})</div>
                         <div class="year-summary">
                             <div class="summary-item">
-                                <span class="summary-label">Total TPL</span>
+                                <span class="summary-label">Total Trade P&L</span>
                                 <span class="summary-value ${totalTPL < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(totalTPL)}
                                 </span>
@@ -2704,7 +2759,7 @@
                                     <th style="text-align: right;">Qty</th>
                                     <th style="text-align: right;">Buy Amount</th>
                                     <th style="text-align: right;">Sell Amount</th>
-                                    <th style="text-align: right;">TPL</th>
+                                    <th style="text-align: right;">Trade P&L</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2755,7 +2810,6 @@
                 return `
                     <tr>
                         <td style="padding: 15px; font-weight: 600; color: #4caf50;">FY ${entry.fiscalYear}</td>
-                        <td class="amount-col tpl ${entry.tpl < 0 ? 'negative' : 'positive'}">${formatCurrency(entry.tpl)}</td>
                         <td class="amount-col ntpl-value ${entry.ntpl < 0 ? 'negative' : 'positive'}">${formatCurrency(entry.ntpl)}</td>
                     </tr>
                 `;
@@ -2763,11 +2817,11 @@
 
             return `
                 <div class="year-item" style="margin-top: 25px;">
-                    <div class="year-header" style="background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);">
+                    <div class="year-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <div class="year-title" style="font-size: 1.5em;">📈 GROWW PNL SUMMARY (${growwEntries.length} Years)</div>
                         <div class="year-summary">
                             <div class="summary-item">
-                                <span class="summary-label">Total NTPL</span>
+                                <span class="summary-label">Total Net P&L</span>
                                 <span class="summary-value ${totalNTPL < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(totalNTPL)}
                                 </span>
@@ -2780,12 +2834,86 @@
                             <thead>
                                 <tr>
                                     <th>Fiscal Year</th>
-                                    <th style="text-align: right;">TPL</th>
-                                    <th style="text-align: right;">NTPL</th>
+                                    <th style="text-align: right;">Net P&L</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${growwRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        };
+
+        const createDeltaExchangePnlHTML = (allYearsData) => {
+            // Extract all Delta Exchange PNL entries from all fiscal years
+            const deltaExchangeEntries = [];
+            allYearsData.forEach(yearData => {
+                const deltaExchangeEntry = yearData.dates.find(dateEntry =>
+                    dateEntry.date === 'Delta Exchange' || dateEntry.originalDate === 'Delta Exchange'
+                );
+                if (deltaExchangeEntry) {
+                    deltaExchangeEntries.push({
+                        fiscalYear: yearData.fiscalYear,
+                        ntpl: deltaExchangeEntry.ntpl,
+                        tpl: deltaExchangeEntry.tpl
+                    });
+                }
+            });
+
+            if (deltaExchangeEntries.length === 0) {
+                return `
+                    <div class="year-item" style="margin-top: 25px;">
+                        <div class="year-header" style="background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);">
+                            <div class="year-title" style="font-size: 1.5em;">🔷 DELTA EXCHANGE PNL SUMMARY</div>
+                        </div>
+                        <div class="dates-container" style="max-height: none;">
+                            <div style="text-align: center; padding: 30px; color: #666;">
+                                <p>No Delta Exchange PNL data found.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Calculate total Delta Exchange NTPL
+            const totalNTPL = deltaExchangeEntries.reduce((sum, entry) => sum + entry.ntpl, 0);
+
+            // Create table rows
+            const deltaExchangeRows = deltaExchangeEntries.map(entry => {
+                return `
+                    <tr>
+                        <td style="padding: 15px; font-weight: 600; color: #ff9800;">FY ${entry.fiscalYear}</td>
+                        <td class="amount-col ntpl-value ${entry.ntpl < 0 ? 'negative' : 'positive'}">${formatCurrency(entry.ntpl)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="year-item" style="margin-top: 25px;">
+                    <div class="year-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="year-title" style="font-size: 1.5em;">🔷 DELTA EXCHANGE PNL SUMMARY (${deltaExchangeEntries.length} Years)</div>
+                        <div class="year-summary">
+                            <div class="summary-item">
+                                <span class="summary-label">Total Net P&L</span>
+                                <span class="summary-value ${totalNTPL < 0 ? 'negative' : 'positive'}">
+                                    ${formatCurrency(totalNTPL)}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="expand-icon"></div>
+                    </div>
+                    <div class="dates-container">
+                        <table class="dates-table">
+                            <thead>
+                                <tr>
+                                    <th>Fiscal Year</th>
+                                    <th style="text-align: right;">Net P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${deltaExchangeRows}
                             </tbody>
                         </table>
                     </div>
@@ -2810,7 +2938,7 @@
                         <div class="year-title" style="font-size: 1.8em;">📊 SUMMARY</div>
                         <div class="year-summary">
                             <div class="summary-item">
-                                <span class="summary-label">Total Bills</span>
+                                <span class="summary-label">Net Bill</span>
                                 <span class="summary-value ${globalTotals.billAmount < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(globalTotals.billAmount)}
                                 </span>
@@ -2820,19 +2948,19 @@
                                 <span class="summary-value expense-value expense-red">${formatCurrency(globalTotals.expense)}</span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">Gross Profit</span>
+                                <span class="summary-label">Gross Bill</span>
                                 <span class="summary-value ${globalTotals.grossProfit < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(globalTotals.grossProfit)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label">TPL</span>
+                                <span class="summary-label">Trade P&L</span>
                                 <span class="summary-value ${globalTotals.tpl < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(globalTotals.tpl)}
                                 </span>
                             </div>
                             <div class="summary-item">
-                                <span class="summary-label"><strong>NTPL</strong></span>
+                                <span class="summary-label"><strong>Net P&L</strong></span>
                                 <span class="summary-value ntpl-value ${globalTotals.ntpl < 0 ? 'negative' : 'positive'}">
                                     ${formatCurrency(globalTotals.ntpl)}
                                 </span>
@@ -2876,13 +3004,14 @@
 
             const { data, enhancedTradebook, matchedPositions } = result;
 
-            // Create global summary + individual years + positions tab + groww pnl summary
+            // Create global summary + individual years + positions tab + groww pnl summary + delta exchange pnl summary
             const globalSummaryHTML = createGlobalSummaryHTML(data);
             const yearsHTML = data.map(yearData => createYearHTML(yearData, enhancedTradebook)).join('');
             const positionsHTML = createPositionsHTML(matchedPositions);
             const growwPnlHTML = createGrowwPnlHTML(data);
+            const deltaExchangePnlHTML = createDeltaExchangePnlHTML(data);
 
-            container.innerHTML = globalSummaryHTML + yearsHTML + positionsHTML + growwPnlHTML;
+            container.innerHTML = globalSummaryHTML + yearsHTML + positionsHTML + growwPnlHTML + deltaExchangePnlHTML;
 
             // Add click event listeners
             document.querySelectorAll('.year-header').forEach(header => {

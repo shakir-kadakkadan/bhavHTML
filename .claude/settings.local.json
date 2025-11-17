@@ -6,7 +6,8 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd Groww PNL Summary section to P&L statement\n\nAdded a dedicated section that collects and displays all Groww Trades PNL entries from across all fiscal years in one consolidated view.\n\nFeatures:\n- Displays fiscal year, TPL, and NTPL for each Groww entry\n- Shows total NTPL across all years in the header\n- Green gradient styling to distinguish from other sections\n- Collapsible table view matching the design of other sections\n- Positioned after the \"All Matched Positions\" section\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git fetch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
