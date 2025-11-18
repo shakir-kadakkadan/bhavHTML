@@ -1141,12 +1141,12 @@
 
         // Helper function to extract expiry date from NSE_FNO symbol (moved earlier for URL parsing)
         const getExpiryFromSymbol = (symbol) => {
-            // Symbol format: "IO PE NIFTY 31Jul2025 24800"
-            const match = symbol.match(/(\d{1,2})([A-Za-z]{3})(\d{4})/);
-            if (match) {
-                const day = match[1].padStart(2, '0');
-                const monthStr = match[2];
-                const year = match[3];
+            // Format 1: "IO PE NIFTY 31Jul2025 24800"
+            const match1 = symbol.match(/(\d{1,2})([A-Za-z]{3})(\d{4})/);
+            if (match1) {
+                const day = match1[1].padStart(2, '0');
+                const monthStr = match1[2];
+                const year = match1[3];
 
                 // Convert month name to number
                 const months = {
@@ -1160,6 +1160,30 @@
                     return `${day}/${month}/${year}`;
                 }
             }
+
+            // Format 2: "NIFTY25N1826000CE" where 25N18 = 2025 Nov 18
+            const match2 = symbol.match(/(\d{2})([A-Z])(\d{2})/);
+            if (match2) {
+                const year = '20' + match2[1];
+                const monthLetter = match2[2];
+                const day = match2[3];
+
+                // Convert month letter to number (A=Jan, B=Feb, ... L=Dec)
+                const monthMap = {
+                    'A': '01', 'B': '02', 'C': '03', 'D': '04',
+                    'E': '05', 'F': '06', 'G': '07', 'H': '08',
+                    'I': '09', 'J': '10', 'K': '11', 'L': '12',
+                    'M': '01', 'N': '11', 'O': '10', 'P': '09',
+                    'Q': '08', 'R': '07', 'S': '06', 'T': '05',
+                    'U': '04', 'V': '03', 'W': '02', 'X': '12'
+                };
+
+                const month = monthMap[monthLetter];
+                if (month) {
+                    return `${day}/${month}/${year}`;
+                }
+            }
+
             return null;
         };
 
