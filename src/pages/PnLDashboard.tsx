@@ -41,12 +41,12 @@ export const PnLDashboard = () => {
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Profit & Loss Statement DUMMY DATA</h1>
           <p className="text-base md:text-lg opacity-90">
             <a
-              href="https://linktr.ee/sudokuTrader"
+              href="https://linktr.ee/sndsanmdnsa"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white no-underline"
             >
-              https://linktr.ee/sudokuTrader (Verified P&L)
+              https://linktr.ee/sndsanmdnsa (Verified P&L)
             </a>
           </p>
 
