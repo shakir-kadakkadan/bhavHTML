@@ -11,7 +11,8 @@
       "Bash(node -e:*)",
       "Bash(npm create:*)",
       "Bash(npm install:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(firebase deploy:*)"
     ],
     "deny": [],
     "ask": []
