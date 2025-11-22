@@ -35,7 +35,7 @@ export const PnLDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5 md:p-5">
-      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-6 md:p-8 text-center relative">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Profit & Loss Statement React</h1>

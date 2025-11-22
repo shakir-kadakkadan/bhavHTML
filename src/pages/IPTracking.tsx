@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { database } from '../utils/firebase';
-import { ref, onValue } from 'firebase/database';
+import { ref, get } from 'firebase/database';
 
 interface IPData {
   id: string;
@@ -28,18 +28,18 @@ export const IPTracking = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadData = () => {
+  const loadData = async () => {
     setLoading(true);
     setError(null);
 
-    const ipRef = ref(database, '/ip_details');
-
-    onValue(ipRef, (snapshot) => {
+    try {
+      const ipRef = ref(database, '/ip_details');
+      const snapshot = await get(ipRef);
       const rawData = snapshot.val();
-      setLoading(false);
 
       if (!rawData) {
         setData([]);
+        setLoading(false);
         return;
       }
 
@@ -51,10 +51,11 @@ export const IPTracking = () => {
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       setData(dataArray);
-    }, (err) => {
       setLoading(false);
-      setError(err.message);
-    });
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    }
   };
 
   useEffect(() => {
@@ -105,8 +106,8 @@ export const IPTracking = () => {
   const trackedSourceVisits = data.filter(item => item.source).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5">
-      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-3 md:p-5">
+      <div className="mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-6 md:p-8 text-center relative">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">IP Tracking Data</h1>
@@ -227,7 +228,7 @@ export const IPTracking = () => {
             to="/"
             className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
           >
-            ← Back to P&L Statement
+            ← Back to Home
           </Link>
         </div>
       </div>

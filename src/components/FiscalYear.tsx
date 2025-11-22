@@ -31,16 +31,16 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
         className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 md:p-5 cursor-pointer hover:from-[#5568d3] hover:to-[#653a8b] transition-all"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex justify-between items-center mb-3">
-          <span className="text-lg md:text-xl font-bold">{fiscalYear.fiscalYear}</span>
+        <div className="flex flex-wrap items-center gap-3 md:gap-4">
+          <span className="text-lg md:text-xl font-bold mr-auto">{fiscalYear.fiscalYear}</span>
+          <div className="flex flex-wrap gap-3 md:gap-4 text-sm justify-end">
+            <SummaryItem label="Net Bill" value={fiscalYear.totals.netBill} useFullFormat={useFullFormat} />
+            <SummaryItem label="Expenses" value={fiscalYear.totals.totalExpenses} useFullFormat={useFullFormat} isExpense />
+            <SummaryItem label="Gross Bill" value={fiscalYear.totals.grossBill} useFullFormat={useFullFormat} />
+            <SummaryItem label="Trade P&L" value={fiscalYear.totals.tradePnL} useFullFormat={useFullFormat} />
+            <SummaryItem label="Net P&L" value={fiscalYear.totals.netPnL} useFullFormat={useFullFormat} />
+          </div>
           <div className={`expand-icon w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-all hover:bg-white/35 hover:scale-110 flex-shrink-0 ${isExpanded ? 'active' : ''}`} />
-        </div>
-        <div className="flex flex-wrap gap-3 md:gap-4 text-sm justify-end">
-          <SummaryItem label="Net Bill" value={fiscalYear.totals.netBill} useFullFormat={useFullFormat} />
-          <SummaryItem label="Expenses" value={fiscalYear.totals.totalExpenses} useFullFormat={useFullFormat} isExpense />
-          <SummaryItem label="Gross Bill" value={fiscalYear.totals.grossBill} useFullFormat={useFullFormat} />
-          <SummaryItem label="Trade P&L" value={fiscalYear.totals.tradePnL} useFullFormat={useFullFormat} />
-          <SummaryItem label="Net P&L" value={fiscalYear.totals.netPnL} useFullFormat={useFullFormat} />
         </div>
       </div>
 
