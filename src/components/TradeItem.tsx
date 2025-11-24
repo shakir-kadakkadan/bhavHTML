@@ -1,12 +1,13 @@
 import type { Trade } from '../types';
-import { formatCurrency, getPnLClass } from '../utils/format';
+import { formatCurrency, getPnLClass, formatDate } from '../utils/format';
 
 interface TradeItemProps {
   trade: Trade;
   useFullFormat: boolean;
+  showDate?: boolean;
 }
 
-export const TradeItem = ({ trade, useFullFormat }: TradeItemProps) => {
+export const TradeItem = ({ trade, useFullFormat, showDate }: TradeItemProps) => {
   const getTypeClass = (type: string) => {
     switch (type.toUpperCase()) {
       case 'SELL':
@@ -23,7 +24,12 @@ export const TradeItem = ({ trade, useFullFormat }: TradeItemProps) => {
   return (
     <div className="grid grid-cols-[1fr_auto_auto_auto] md:grid-cols-[1fr_80px_80px_80px] gap-2 items-center p-2 bg-white rounded-md mb-2 border border-gray-200">
       <div className="font-bold text-gray-800 text-sm">{trade.symbol}</div>
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-2">
+        {showDate && trade.dateMilli && (
+          <span className="text-xs text-gray-500 font-medium whitespace-nowrap hidden md:inline">
+            {formatDate(trade.dateMilli)}
+          </span>
+        )}
         <span className={`px-2 py-1 rounded text-xs font-bold ${getTypeClass(trade.type)}`}>
           {trade.type}
         </span>

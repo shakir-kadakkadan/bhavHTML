@@ -29,3 +29,8 @@ export const getPnLColor = (value: number): string => {
 export const getPnLClass = (value: number): string => {
   return `${getPnLColor(value)} font-bold`;
 };
+
+export const formatDate = (dateMilli: number) => {
+  const date = new Date(dateMilli);
+  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+};

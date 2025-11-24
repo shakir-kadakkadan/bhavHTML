@@ -8,7 +8,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-export const DATA_URL = 'https://bhavpc-default-rtdb.asia-southeast1.firebasedatabase.app/pnl_shakir.json';
+
+export const DATA_URL = 'https://bhavpc-default-rtdb.asia-southeast1.firebasedatabase.app/pnlsudokutrader.json';
 
 export const trackIPData = async (action: string): Promise<void> => {
   try {
@@ -28,7 +29,7 @@ export const trackIPData = async (action: string): Promise<void> => {
       currentPath: window.location.pathname,
       urlParams: Object.fromEntries(new URLSearchParams(window.location.search)),
       source: new URLSearchParams(window.location.search).get('ref') ||
-              new URLSearchParams(window.location.search).get('utm_source') || null,
+        new URLSearchParams(window.location.search).get('utm_source') || null,
       campaign: new URLSearchParams(window.location.search).get('utm_campaign') || null,
       medium: new URLSearchParams(window.location.search).get('utm_medium') || null,
       screenWidth: window.screen.width,

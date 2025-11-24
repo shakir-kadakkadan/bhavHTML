@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FiscalYear as FiscalYearType } from '../types';
-import { formatCurrency, getPnLClass, getPnLColor } from '../utils/format';
+import { formatCurrency, getPnLClass, getPnLColor, formatDate } from '../utils/format';
 import { SummaryItem } from './SummaryItem';
 import { TradeItem } from './TradeItem';
 
@@ -9,10 +9,7 @@ interface FiscalYearProps {
   useFullFormat: boolean;
 }
 
-const formatDate = (dateMilli: number) => {
-  const date = new Date(dateMilli);
-  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-};
+
 
 export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -49,7 +46,7 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
             <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
             <SummaryItem label="Net P&L" value={fiscalYear.netTPL} useFullFormat={useFullFormat} />
           </div>
-          <div className={`w-8 h-8 flex-shrink-0 ${(fiscalYear.pnl && fiscalYear.pnl.length > 0) || (fiscalYear.swings && fiscalYear.swings.length > 0 && (!fiscalYear.pnl || fiscalYear.pnl.length === 0)) ? `expand-icon rounded-full bg-white/20 flex items-center justify-center transition-all hover:bg-white/35 hover:scale-110 ${isExpanded ? 'active' : ''}` : ''}`} />
+          <div className={`w-8 h-8 flex-shrink-0 ${(fiscalYear.pnl && fiscalYear.pnl.length > 0) || (fiscalYear.swings && fiscalYear.swings.length > 0) || (fiscalYear.top10Trades && fiscalYear.top10Trades.length > 0) ? `expand-icon rounded-full bg-white/20 flex items-center justify-center transition-all hover:bg-white/35 hover:scale-110 ${isExpanded ? 'active' : ''}` : ''}`} />
         </div>
       </div>
 
@@ -141,6 +138,13 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
               ))}
             </tbody>
           </table>
+        )}
+        {fiscalYear.top10Trades && fiscalYear.top10Trades.length > 0 && (
+          <div className="p-4">
+            {fiscalYear.top10Trades.map((trade, index) => (
+              <TradeItem key={index} trade={trade} useFullFormat={useFullFormat} showDate={true} />
+            ))}
+          </div>
         )}
       </div>
     </div>
