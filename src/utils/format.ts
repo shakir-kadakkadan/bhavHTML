@@ -6,18 +6,18 @@ export const formatCurrency = (amount: number | null | undefined, useFullFormat:
 
   if (useFullFormat) {
     return sign + absAmount.toLocaleString('en-IN', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1
     });
   } else {
     if (absAmount >= 10000000) {
-      return sign + (absAmount / 10000000).toFixed(2) + ' Cr';
+      return sign + parseFloat((absAmount / 10000000).toFixed(1)) + ' Cr';
     } else if (absAmount >= 100000) {
-      return sign + (absAmount / 100000).toFixed(2) + ' L';
+      return sign + parseFloat((absAmount / 100000).toFixed(1)) + ' L';
     } else if (absAmount >= 1000) {
-      return sign + (absAmount / 1000).toFixed(2) + ' K';
+      return sign + parseFloat((absAmount / 1000).toFixed(1)) + ' K';
     } else {
-      return sign + absAmount.toFixed(2);
+      return sign + parseFloat(absAmount.toFixed(1));
     }
   }
 };
