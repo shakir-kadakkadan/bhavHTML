@@ -106,10 +106,10 @@ export const IPTracking = () => {
   const trackedSourceVisits = data.filter(item => item.source).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-3 md:p-5">
-      <div className="mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-3 md:p-5 transition-colors duration-300">
+      <div className="mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-6 md:p-8 text-center relative">
+        <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">IP Tracking Data</h1>
           <p className="text-base md:text-lg opacity-90">Visitor analytics from all pages</p>
           <button
@@ -121,27 +121,27 @@ export const IPTracking = () => {
         </div>
 
         {/* Content */}
-        <div className="p-4 md:p-10">
+        <div className="p-4 md:p-10 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
           {/* Stats */}
           {!loading && data.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 rounded-xl text-center">
+              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white p-4 rounded-xl text-center">
                 <h3 className="text-2xl font-bold">{totalVisits}</h3>
                 <p className="text-sm opacity-90">Total Visits</p>
               </div>
-              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 rounded-xl text-center">
+              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white p-4 rounded-xl text-center">
                 <h3 className="text-2xl font-bold">{uniqueIPs}</h3>
                 <p className="text-sm opacity-90">Unique IPs</p>
               </div>
-              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 rounded-xl text-center">
+              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white p-4 rounded-xl text-center">
                 <h3 className="text-2xl font-bold">{uniqueCountries}</h3>
                 <p className="text-sm opacity-90">Countries</p>
               </div>
-              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 rounded-xl text-center">
+              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white p-4 rounded-xl text-center">
                 <h3 className="text-2xl font-bold">{trackedSourceVisits}</h3>
                 <p className="text-sm opacity-90">Tracked Sources</p>
               </div>
-              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 rounded-xl text-center">
+              <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white p-4 rounded-xl text-center">
                 <h3 className="text-2xl font-bold">{directVisits}</h3>
                 <p className="text-sm opacity-90">Direct/Unknown</p>
               </div>
@@ -149,19 +149,19 @@ export const IPTracking = () => {
           )}
 
           {loading && (
-            <div className="text-center py-12 text-lg text-[#667eea]">
+            <div className="text-center py-12 text-lg text-[#667eea] dark:text-blue-400">
               Loading data...
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded mb-4">
+            <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded mb-4">
               Error loading data: {error}
             </div>
           )}
 
           {!loading && data.length === 0 && (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-gray-500 dark:text-gray-400">
               <h3 className="text-xl font-semibold mb-2">No tracking data yet</h3>
               <p>Data will appear here when visitors load tracked pages</p>
             </div>
@@ -170,8 +170,8 @@ export const IPTracking = () => {
           {/* Table */}
           {!loading && data.length > 0 && (
             <div className="overflow-x-auto rounded-xl shadow">
-              <table className="w-full border-collapse text-sm">
-                <thead className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white sticky top-0">
+              <table className="w-full border-collapse text-sm text-gray-900 dark:text-gray-100">
+                <thead className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white sticky top-0">
                   <tr>
                     <th className="p-3 text-left font-semibold">#</th>
                     <th className="p-3 text-left font-semibold whitespace-nowrap">Timestamp</th>
@@ -188,22 +188,22 @@ export const IPTracking = () => {
                 </thead>
                 <tbody>
                   {data.map((item, index) => (
-                    <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 even:bg-gray-50/50">
+                    <tr key={item.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 even:bg-gray-50/50 dark:even:bg-gray-800/50 transition-colors">
                       <td className="p-3">{index + 1}</td>
-                      <td className="p-3 whitespace-nowrap text-xs text-gray-600">
+                      <td className="p-3 whitespace-nowrap text-xs text-gray-600 dark:text-gray-400">
                         {formatTimestamp(item.timestamp)}
                       </td>
-                      <td className="p-3 font-mono font-semibold text-blue-600">
+                      <td className="p-3 font-mono font-semibold text-blue-600 dark:text-blue-400">
                         {item.query || 'N/A'}
                       </td>
-                      <td className="p-3 text-green-700">
+                      <td className="p-3 text-green-700 dark:text-green-400">
                         {`${item.city || '?'}, ${item.regionName || '?'}, ${item.country || '?'}`}
                       </td>
                       <td className="p-3">{item.isp || 'N/A'}</td>
                       <td className="p-3 max-w-[200px] truncate" title={item.currentURL}>
                         {item.currentPath || 'N/A'}
                       </td>
-                      <td className="p-3 text-orange-600 text-xs">
+                      <td className="p-3 text-orange-600 dark:text-orange-400 text-xs">
                         {item.source ? (
                           <>
                             <strong>{item.source}</strong>
@@ -211,7 +211,7 @@ export const IPTracking = () => {
                           </>
                         ) : '-'}
                       </td>
-                      <td className="p-3 text-orange-600 text-xs" title={item.referrer || 'direct'}>
+                      <td className="p-3 text-orange-600 dark:text-orange-400 text-xs" title={item.referrer || 'direct'}>
                         {formatReferrer(item.referrer)}
                       </td>
                       <td className="p-3">{`${item.screenWidth}x${item.screenHeight}`}</td>
@@ -226,7 +226,7 @@ export const IPTracking = () => {
 
           <Link
             to="/"
-            className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
+            className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-700 dark:to-gray-600 text-white rounded font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
           >
             ← Back to Home
           </Link>

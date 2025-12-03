@@ -19,9 +19,9 @@ export const CollapsibleSection = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="mb-4 border-2 border-gray-200 rounded-xl overflow-hidden transition-all hover:border-[#667eea] hover:shadow-lg">
+    <div className="mb-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all hover:border-[#667eea] dark:hover:border-blue-500 hover:shadow-lg">
       <div
-        className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 md:p-5 cursor-pointer hover:from-[#5568d3] hover:to-[#653a8b] transition-all"
+        className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-4 md:p-5 cursor-pointer hover:from-[#5568d3] hover:to-[#653a8b] dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
@@ -38,7 +38,7 @@ export const CollapsibleSection = ({
         </div>
       </div>
 
-      <div className={`accordion-content bg-gray-50 ${isExpanded ? 'active' : ''}`}>
+      <div className={`accordion-content bg-gray-50 dark:bg-gray-900 ${isExpanded ? 'active' : ''}`}>
         {children}
       </div>
     </div>

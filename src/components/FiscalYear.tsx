@@ -30,9 +30,9 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
   const totalExpense = fiscalYear.expense ?? (fiscalYear.pnl?.reduce((sum, entry) => sum + (entry.expense || 0), 0) || 0);
 
   return (
-    <div className="mb-4 border-2 border-gray-200 rounded-xl overflow-hidden transition-all hover:border-[#667eea] hover:shadow-lg">
+    <div className="mb-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all hover:border-[#667eea] dark:hover:border-blue-500 hover:shadow-lg">
       <div
-        className="bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white p-4 md:p-5 cursor-pointer hover:from-[#5568d3] hover:to-[#653a8b] transition-all"
+        className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-4 md:p-5 cursor-pointer hover:from-[#5568d3] hover:to-[#653a8b] dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
@@ -50,10 +50,10 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
         </div>
       </div>
 
-      <div className={`accordion-content bg-gray-50 ${isExpanded ? 'active' : ''}`}>
+      <div className={`accordion-content bg-gray-50 dark:bg-gray-900 ${isExpanded ? 'active' : ''}`}>
         {fiscalYear.pnl && fiscalYear.pnl.length > 0 && (
-          <table className="w-full border-collapse text-xs md:text-sm">
-            <thead className="bg-[#667eea] text-white">
+          <table className="w-full border-collapse text-xs md:text-sm text-gray-900 dark:text-gray-100">
+            <thead className="bg-[#667eea] dark:bg-gray-800 text-white">
               <tr>
                 <th className="p-3 text-left font-semibold">Date</th>
                 <th className="p-3 text-right font-semibold">Bill</th>
@@ -68,10 +68,10 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                 <>
                   <tr
                     key={`date-${index}`}
-                    className="border-b border-gray-200 hover:bg-indigo-50 cursor-pointer transition-colors"
+                    className="border-b border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
                     onClick={() => toggleDate(index)}
                   >
-                    <td className={`p-3 font-semibold text-[#667eea]`}>
+                    <td className={`p-3 font-semibold text-[#667eea] dark:text-blue-400`}>
                       {entry.name || formatDate(entry.dateMilli)}
                     </td>
                     <td className={`p-3 text-right ${getPnLClass(entry.bill)}`}>{formatCurrency(entry.bill, useFullFormat)}</td>
@@ -91,10 +91,10 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                     </td>
                   </tr>
                   {entry.trades && entry.trades.length > 0 && expandedDates.has(index) && (
-                    <tr key={`trades-${index}`} className="bg-indigo-50">
+                    <tr key={`trades-${index}`} className="bg-indigo-50 dark:bg-gray-800">
                       <td colSpan={6} className="p-0">
-                        <div className="p-4 border-t border-gray-300">
-                          <div className="font-bold text-[#667eea] mb-3 text-sm">
+                        <div className="p-4 border-t border-gray-300 dark:border-gray-600">
+                          <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
                             Trades for {entry.name || formatDate(entry.dateMilli)}
                           </div>
                           {entry.trades.map((trade, tradeIndex) => (
@@ -110,8 +110,8 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
           </table>
         )}
         {(!fiscalYear.pnl || fiscalYear.pnl.length === 0) && fiscalYear.swings && fiscalYear.swings.length > 0 && (
-          <table className="w-full border-collapse text-xs md:text-sm">
-            <thead className="bg-[#667eea] text-white">
+          <table className="w-full border-collapse text-xs md:text-sm text-gray-900 dark:text-gray-100">
+            <thead className="bg-[#667eea] dark:bg-gray-800 text-white">
               <tr>
                 <th className="p-3 text-left font-semibold">Symbol</th>
                 <th className="p-3 text-right font-semibold">Qty</th>
@@ -124,8 +124,8 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
             </thead>
             <tbody>
               {fiscalYear.swings.map((swing, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-indigo-50 transition-colors">
-                  <td className="p-3 font-semibold text-[#667eea]">{swing.symbol}</td>
+                <tr key={index} className="border-b border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors">
+                  <td className="p-3 font-semibold text-[#667eea] dark:text-blue-400">{swing.symbol}</td>
                   <td className="p-3 text-right">{swing.qty}</td>
                   <td className="p-3 text-right">{formatDate(swing.buyAtMilli)}</td>
                   <td className="p-3 text-right">{formatDate(swing.sellAtMilli)}</td>
