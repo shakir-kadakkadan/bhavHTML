@@ -7,11 +7,12 @@ import { TradeItem } from './TradeItem';
 interface FiscalYearProps {
   fiscalYear: FiscalYearType;
   useFullFormat: boolean;
+  mobileDesktopView?: boolean;
 }
 
 
 
-export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
+export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = false }: FiscalYearProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedDates, setExpandedDates] = useState<Set<number>>(new Set());
 
@@ -29,6 +30,9 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
 
   const totalExpense = fiscalYear.expense ?? (fiscalYear.pnl?.reduce((sum, entry) => sum + (entry.expense || 0), 0) || 0);
 
+  // Helper to get responsive class - show all columns if mobileDesktopView is enabled
+  const getHiddenClass = (baseClass: string) => mobileDesktopView ? baseClass : `hidden md:${baseClass}`;
+
   return (
     <div className="mb-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden transition-all hover:border-[#667eea] dark:hover:border-blue-500 hover:shadow-lg">
       <div
@@ -38,18 +42,18 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
           <span className="text-lg md:text-xl font-bold mr-auto">{fiscalYear.title}</span>
           <div className="flex flex-wrap gap-3 md:gap-4 text-sm justify-end">
-            <div className="hidden md:block">
+            <div className={getHiddenClass('block')}>
               <SummaryItem label="Net Bill" value={fiscalYear.netBill} useFullFormat={useFullFormat} />
             </div>
             {totalExpense !== 0 && (
-              <div className="hidden md:block">
+              <div className={getHiddenClass('block')}>
                 <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} />
               </div>
             )}
-            <div className="hidden md:block">
+            <div className={getHiddenClass('block')}>
               <SummaryItem label="Gross Bill" value={fiscalYear.grossBill} useFullFormat={useFullFormat} />
             </div>
-            <div className="hidden md:block">
+            <div className={getHiddenClass('block')}>
               <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
             </div>
             <SummaryItem label="Net P&L" value={fiscalYear.netTPL} useFullFormat={useFullFormat} />
@@ -64,10 +68,10 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
             <thead className="bg-[#667eea] dark:bg-gray-800 text-white">
               <tr>
                 <th className="p-3 text-left font-semibold">Date</th>
-                <th className="p-3 text-right font-semibold hidden md:table-cell">Bill</th>
-                <th className="p-3 text-right font-semibold hidden md:table-cell">Expense</th>
-                <th className="p-3 text-right font-semibold hidden md:table-cell">Gross Bill</th>
-                <th className="p-3 text-right font-semibold hidden md:table-cell">Trade P&L</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Bill</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Expense</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Gross Bill</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Trade P&L</th>
                 <th className="p-3 text-right font-semibold">Net P&L</th>
               </tr>
             </thead>
@@ -82,16 +86,16 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                     <td className={`p-3 font-semibold text-[#667eea] dark:text-blue-400`}>
                       {entry.name || formatDate(entry.dateMilli)}
                     </td>
-                    <td className={`p-3 text-right ${getPnLClass(entry.bill)} hidden md:table-cell`}>{formatCurrency(entry.bill, useFullFormat)}</td>
-                    <td className="p-3 text-right text-red-400 font-bold hidden md:table-cell">
+                    <td className={`p-3 text-right ${getPnLClass(entry.bill)} ${getHiddenClass('table-cell')}`}>{formatCurrency(entry.bill, useFullFormat)}</td>
+                    <td className={`p-3 text-right text-red-400 font-bold ${getHiddenClass('table-cell')}`}>
                       {entry.expense != null
                         ? formatCurrency(entry.expense, useFullFormat)
                         : entry.calculatedExpense != null
                           ? `~${formatCurrency(entry.calculatedExpense, useFullFormat)}`
                           : formatCurrency(0, useFullFormat)}
                     </td>
-                    <td className={`p-3 text-right ${getPnLColor(entry.grossBill)} hidden md:table-cell`}>{formatCurrency(entry.grossBill, useFullFormat)}</td>
-                    <td className={`p-3 text-right ${getPnLColor(entry.tpl)} hidden md:table-cell`}>
+                    <td className={`p-3 text-right ${getPnLColor(entry.grossBill)} ${getHiddenClass('table-cell')}`}>{formatCurrency(entry.grossBill, useFullFormat)}</td>
+                    <td className={`p-3 text-right ${getPnLColor(entry.tpl)} ${getHiddenClass('table-cell')}`}>
                       {formatCurrency(entry.tpl, useFullFormat)}
                     </td>
                     <td className={`p-3 text-right ${getPnLClass(entry.ntpl)}`}>
@@ -100,26 +104,28 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                   </tr>
                   {entry.trades && entry.trades.length > 0 && expandedDates.has(index) && (
                     <tr key={`trades-${index}`} className="bg-indigo-50 dark:bg-gray-800">
-                      <td colSpan={2} className="p-0 md:hidden">
+                      <td colSpan={mobileDesktopView ? 6 : 2} className={mobileDesktopView ? 'p-0' : 'p-0 md:hidden'}>
                         <div className="p-4 border-t border-gray-300 dark:border-gray-600">
                           <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
                             Trades for {entry.name || formatDate(entry.dateMilli)}
                           </div>
                           {entry.trades.map((trade, tradeIndex) => (
-                            <TradeItem key={tradeIndex} trade={trade} useFullFormat={useFullFormat} />
+                            <TradeItem key={tradeIndex} trade={trade} useFullFormat={useFullFormat} mobileDesktopView={mobileDesktopView} />
                           ))}
                         </div>
                       </td>
-                      <td colSpan={6} className="p-0 hidden md:table-cell">
-                        <div className="p-4 border-t border-gray-300 dark:border-gray-600">
-                          <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
-                            Trades for {entry.name || formatDate(entry.dateMilli)}
+                      {!mobileDesktopView && (
+                        <td colSpan={6} className="p-0 hidden md:table-cell">
+                          <div className="p-4 border-t border-gray-300 dark:border-gray-600">
+                            <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
+                              Trades for {entry.name || formatDate(entry.dateMilli)}
+                            </div>
+                            {entry.trades.map((trade, tradeIndex) => (
+                              <TradeItem key={tradeIndex} trade={trade} useFullFormat={useFullFormat} mobileDesktopView={mobileDesktopView} />
+                            ))}
                           </div>
-                          {entry.trades.map((trade, tradeIndex) => (
-                            <TradeItem key={tradeIndex} trade={trade} useFullFormat={useFullFormat} />
-                          ))}
-                        </div>
-                      </td>
+                        </td>
+                      )}
                     </tr>
                   )}
                 </>
