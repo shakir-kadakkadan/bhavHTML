@@ -113,21 +113,21 @@ export const PnLDashboard = () => {
       {/* Mobile Desktop View Toggle Button */}
       <button
         onClick={() => setMobileDesktopView(!mobileDesktopView)}
-        className="md:hidden fixed bottom-6 right-6 bg-[#667eea] hover:bg-[#5568d3] text-white p-4 rounded-full shadow-2xl transition-all hover:scale-110 z-50"
+        className="md:hidden fixed bottom-6 right-6 bg-[#667eea] hover:bg-[#5568d3] text-white p-3 rounded-full shadow-2xl transition-all hover:scale-110 z-50"
         aria-label="Toggle Desktop View"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
+          className="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
           {mobileDesktopView ? (
-            // Mobile icon
+            // Mobile icon - shows when in desktop view, click to return to mobile
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
           ) : (
-            // Desktop icon
+            // Desktop icon - shows when in mobile view, click to switch to desktop
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           )}
         </svg>
