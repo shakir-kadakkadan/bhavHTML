@@ -30,14 +30,28 @@ export const PnLDashboard = () => {
     trackIPData('page_load');
   }, []);
 
+  // Update viewport meta tag when desktop view is toggled on mobile
+  useEffect(() => {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      if (mobileDesktopView) {
+        // Enable desktop site mode: allow zooming and set wider viewport
+        viewport.setAttribute('content', 'width=1200, initial-scale=0.4, maximum-scale=5.0, user-scalable=yes');
+      } else {
+        // Restore mobile viewport
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      }
+    }
+  }, [mobileDesktopView]);
+
 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-5 md:p-5 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
+      <div className={`${mobileDesktopView ? 'min-w-[1200px]' : 'max-w-7xl'} mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
-          <div className="absolute top-4 right-4 md:top-8 md:right-8 hidden md:flex items-center gap-4">
+          <div className={`absolute top-4 right-4 md:top-8 md:right-8 ${mobileDesktopView ? 'flex' : 'hidden md:flex'} items-center gap-4`}>
             {/* Currency Toggle */}
             <div className="flex items-center gap-3 text-sm">
               <label htmlFor="currencyFormat" className="cursor-pointer select-none hidden md:block">

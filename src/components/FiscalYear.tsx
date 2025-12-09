@@ -138,11 +138,11 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
             <thead className="bg-[#667eea] dark:bg-gray-800 text-white">
               <tr>
                 <th className="p-3 text-left font-semibold">Symbol</th>
-                <th className="p-3 text-right font-semibold">Qty</th>
-                <th className="p-3 text-right font-semibold">Buy Date</th>
-                <th className="p-3 text-right font-semibold">Sell Date</th>
-                <th className="p-3 text-right font-semibold">Buy Value</th>
-                <th className="p-3 text-right font-semibold">Sell Value</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Qty</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Buy Date</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Sell Date</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Buy Value</th>
+                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Sell Value</th>
                 <th className="p-3 text-right font-semibold">P&L</th>
               </tr>
             </thead>
@@ -150,11 +150,11 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
               {fiscalYear.swings.map((swing, index) => (
                 <tr key={index} className="border-b border-gray-200 dark:border-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-800 transition-colors">
                   <td className="p-3 font-semibold text-[#667eea] dark:text-blue-400">{swing.symbol}</td>
-                  <td className="p-3 text-right">{swing.qty}</td>
-                  <td className="p-3 text-right">{formatDate(swing.buyAtMilli)}</td>
-                  <td className="p-3 text-right">{formatDate(swing.sellAtMilli)}</td>
-                  <td className="p-3 text-right">{formatCurrency(swing.buyVal, useFullFormat)}</td>
-                  <td className="p-3 text-right">{formatCurrency(swing.sellVal, useFullFormat)}</td>
+                  <td className={`p-3 text-right ${getHiddenClass('table-cell')}`}>{swing.qty}</td>
+                  <td className={`p-3 text-right ${getHiddenClass('table-cell')}`}>{formatDate(swing.buyAtMilli)}</td>
+                  <td className={`p-3 text-right ${getHiddenClass('table-cell')}`}>{formatDate(swing.sellAtMilli)}</td>
+                  <td className={`p-3 text-right ${getHiddenClass('table-cell')}`}>{formatCurrency(swing.buyVal, useFullFormat)}</td>
+                  <td className={`p-3 text-right ${getHiddenClass('table-cell')}`}>{formatCurrency(swing.sellVal, useFullFormat)}</td>
                   <td className={`p-3 text-right ${getPnLClass(swing.pnl)}`}>
                     {formatCurrency(swing.pnl, useFullFormat)}
                   </td>
