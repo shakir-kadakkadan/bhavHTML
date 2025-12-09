@@ -36,7 +36,7 @@ export const PnLDashboard = () => {
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
-          <div className="absolute top-4 right-4 md:top-8 md:right-8 flex items-center gap-4">
+          <div className="absolute top-4 right-4 md:top-8 md:right-8 hidden md:flex items-center gap-4">
             {/* Currency Toggle */}
             <div className="flex items-center gap-3 text-sm">
               <label htmlFor="currencyFormat" className="cursor-pointer select-none hidden md:block">

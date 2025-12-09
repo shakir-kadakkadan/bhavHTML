@@ -38,12 +38,20 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
           <span className="text-lg md:text-xl font-bold mr-auto">{fiscalYear.title}</span>
           <div className="flex flex-wrap gap-3 md:gap-4 text-sm justify-end">
-            <SummaryItem label="Net Bill" value={fiscalYear.netBill} useFullFormat={useFullFormat} />
+            <div className="hidden md:block">
+              <SummaryItem label="Net Bill" value={fiscalYear.netBill} useFullFormat={useFullFormat} />
+            </div>
             {totalExpense !== 0 && (
-              <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} />
+              <div className="hidden md:block">
+                <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} />
+              </div>
             )}
-            <SummaryItem label="Gross Bill" value={fiscalYear.grossBill} useFullFormat={useFullFormat} />
-            <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
+            <div className="hidden md:block">
+              <SummaryItem label="Gross Bill" value={fiscalYear.grossBill} useFullFormat={useFullFormat} />
+            </div>
+            <div className="hidden md:block">
+              <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
+            </div>
             <SummaryItem label="Net P&L" value={fiscalYear.netTPL} useFullFormat={useFullFormat} />
           </div>
           <div className={`w-8 h-8 flex-shrink-0 ${(fiscalYear.pnl && fiscalYear.pnl.length > 0) || (fiscalYear.swings && fiscalYear.swings.length > 0) || (fiscalYear.top10Trades && fiscalYear.top10Trades.length > 0) ? `expand-icon rounded-full bg-white/20 flex items-center justify-center transition-all hover:bg-white/35 hover:scale-110 ${isExpanded ? 'active' : ''}` : ''}`} />
@@ -56,10 +64,10 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
             <thead className="bg-[#667eea] dark:bg-gray-800 text-white">
               <tr>
                 <th className="p-3 text-left font-semibold">Date</th>
-                <th className="p-3 text-right font-semibold">Bill</th>
-                <th className="p-3 text-right font-semibold">Expense</th>
-                <th className="p-3 text-right font-semibold">Gross Bill</th>
-                <th className="p-3 text-right font-semibold">Trade P&L</th>
+                <th className="p-3 text-right font-semibold hidden md:table-cell">Bill</th>
+                <th className="p-3 text-right font-semibold hidden md:table-cell">Expense</th>
+                <th className="p-3 text-right font-semibold hidden md:table-cell">Gross Bill</th>
+                <th className="p-3 text-right font-semibold hidden md:table-cell">Trade P&L</th>
                 <th className="p-3 text-right font-semibold">Net P&L</th>
               </tr>
             </thead>
@@ -74,16 +82,16 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                     <td className={`p-3 font-semibold text-[#667eea] dark:text-blue-400`}>
                       {entry.name || formatDate(entry.dateMilli)}
                     </td>
-                    <td className={`p-3 text-right ${getPnLClass(entry.bill)}`}>{formatCurrency(entry.bill, useFullFormat)}</td>
-                    <td className="p-3 text-right text-red-400 font-bold">
+                    <td className={`p-3 text-right ${getPnLClass(entry.bill)} hidden md:table-cell`}>{formatCurrency(entry.bill, useFullFormat)}</td>
+                    <td className="p-3 text-right text-red-400 font-bold hidden md:table-cell">
                       {entry.expense != null
                         ? formatCurrency(entry.expense, useFullFormat)
                         : entry.calculatedExpense != null
                           ? `~${formatCurrency(entry.calculatedExpense, useFullFormat)}`
                           : formatCurrency(0, useFullFormat)}
                     </td>
-                    <td className={`p-3 text-right ${getPnLColor(entry.grossBill)}`}>{formatCurrency(entry.grossBill, useFullFormat)}</td>
-                    <td className={`p-3 text-right ${getPnLColor(entry.tpl)}`}>
+                    <td className={`p-3 text-right ${getPnLColor(entry.grossBill)} hidden md:table-cell`}>{formatCurrency(entry.grossBill, useFullFormat)}</td>
+                    <td className={`p-3 text-right ${getPnLColor(entry.tpl)} hidden md:table-cell`}>
                       {formatCurrency(entry.tpl, useFullFormat)}
                     </td>
                     <td className={`p-3 text-right ${getPnLClass(entry.ntpl)}`}>
@@ -92,7 +100,17 @@ export const FiscalYear = ({ fiscalYear, useFullFormat }: FiscalYearProps) => {
                   </tr>
                   {entry.trades && entry.trades.length > 0 && expandedDates.has(index) && (
                     <tr key={`trades-${index}`} className="bg-indigo-50 dark:bg-gray-800">
-                      <td colSpan={6} className="p-0">
+                      <td colSpan={2} className="p-0 md:hidden">
+                        <div className="p-4 border-t border-gray-300 dark:border-gray-600">
+                          <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
+                            Trades for {entry.name || formatDate(entry.dateMilli)}
+                          </div>
+                          {entry.trades.map((trade, tradeIndex) => (
+                            <TradeItem key={tradeIndex} trade={trade} useFullFormat={useFullFormat} />
+                          ))}
+                        </div>
+                      </td>
+                      <td colSpan={6} className="p-0 hidden md:table-cell">
                         <div className="p-4 border-t border-gray-300 dark:border-gray-600">
                           <div className="font-bold text-[#667eea] dark:text-blue-400 mb-3 text-sm">
                             Trades for {entry.name || formatDate(entry.dateMilli)}
