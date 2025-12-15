@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeProvider';
 import { PnLDashboard } from './pages/PnLDashboard';
 import { IPTracking } from './pages/IPTracking';
+import { PnLGraph } from './pages/PnLGraph';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PnLDashboard />} />
           <Route path="/pl" element={<PnLDashboard />} />
+          <Route path="/plgraph" element={<PnLGraph />} />
           <Route path="/ip" element={<IPTracking />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
