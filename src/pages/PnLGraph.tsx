@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
   Brush,
+  ReferenceLine,
 } from 'recharts';
 import { trackIPData } from '../utils/firebase';
 
@@ -80,6 +81,26 @@ export const PnLGraph = () => {
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
+          <a
+            href="/pl"
+            className="absolute top-4 left-4 md:top-8 md:left-8 text-white hover:text-gray-200 transition-colors"
+            aria-label="Back to P&L Dashboard"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 md:h-10 md:w-10"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </a>
           <h1 className="text-2xl md:text-4xl font-bold mb-2">P&L Growth Chart</h1>
           <p className="text-base md:text-lg opacity-90">
             <a
@@ -114,7 +135,7 @@ export const PnLGraph = () => {
                   data={graphData}
                   margin={{
                     top: 5,
-                    right: 30,
+                    right: 80,
                     left: 20,
                     bottom: 5,
                   }}
@@ -161,6 +182,13 @@ export const PnLGraph = () => {
                     }}
                   />
                   <Legend />
+                  <ReferenceLine
+                    y={0}
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    label={{ value: 'Break Even', position: 'right', fill: '#ef4444', fontSize: 12 }}
+                  />
                   <Line
                     type="monotone"
                     dataKey="ntplTillDate"
