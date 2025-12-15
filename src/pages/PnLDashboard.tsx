@@ -51,26 +51,6 @@ export const PnLDashboard = () => {
       <div className={`${mobileDesktopView ? 'min-w-[1200px]' : 'max-w-7xl'} mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
-          <a
-            href="/plgraph"
-            className="absolute top-4 left-4 md:top-8 md:left-8 text-white hover:text-gray-200 transition-colors"
-            aria-label="View P&L Graph"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 md:h-10 md:w-10"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-              />
-            </svg>
-          </a>
           <div className={`absolute top-4 right-4 md:top-8 md:right-8 ${mobileDesktopView ? 'flex' : 'hidden md:flex'} items-center gap-4`}>
             {/* Currency Toggle */}
             <div className="flex items-center gap-3 text-sm">
@@ -94,16 +74,39 @@ export const PnLDashboard = () => {
           </div>
 
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Profit & Loss Statement</h1>
-          <p className="text-base md:text-lg opacity-90">
+          <p className="text-base md:text-lg opacity-90 mb-4">
             <a
-              href="https://linktr.ee/sudoku_trader"
+              href="https://linktr.ee/trial_a.n.d_error"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white no-underline hover:text-gray-200 transition-colors"
             >
-              https://linktr.ee/sudoku_trader (Verified P&L)
+              https://linktr.ee/trial_a.n.d_error (Verified P&L)
             </a>
           </p>
+
+          {/* Chart Icon */}
+          <a
+            href="/plgraph"
+            className="inline-flex items-center gap-2 text-white hover:text-gray-200 transition-colors bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg"
+            aria-label="View P&L Growth Chart"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 md:h-6 md:w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+              />
+            </svg>
+            <span className="text-sm md:text-base font-medium">P&L Growth Chart</span>
+          </a>
         </div>
 
         {/* Content */}

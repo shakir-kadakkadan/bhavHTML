@@ -104,12 +104,12 @@ export const PnLGraph = () => {
           <h1 className="text-2xl md:text-4xl font-bold mb-2">P&L Growth Chart</h1>
           <p className="text-base md:text-lg opacity-90">
             <a
-              href="https://linktr.ee/sudoku_trader"
+              href="https://linktr.ee/trial_a.n.d_error"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white no-underline hover:text-gray-200 transition-colors"
             >
-              https://linktr.ee/sudoku_trader (Verified P&L)
+              https://linktr.ee/trial_a.n.d_error (Verified P&L)
             </a>
           </p>
         </div>
