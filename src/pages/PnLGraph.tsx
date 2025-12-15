@@ -76,6 +76,26 @@ export const PnLGraph = () => {
     }).format(value);
   };
 
+  const formatIndianNumber = (value: number) => {
+    const absValue = Math.abs(value);
+    const sign = value < 0 ? '-' : '';
+
+    if (absValue >= 10000000) {
+      // Crores
+      return `${sign}₹${(absValue / 10000000).toFixed(1)}Cr`;
+    } else if (absValue >= 100000) {
+      // Lakhs
+      return `${sign}₹${(absValue / 100000).toFixed(1)}L`;
+    } else if (absValue >= 1000) {
+      // Thousands
+      return `${sign}₹${(absValue / 1000).toFixed(1)}K`;
+    } else if (absValue === 0) {
+      return '0';
+    } else {
+      return `${sign}₹${absValue.toFixed(0)}`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-5 md:p-5 transition-colors duration-300">
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
@@ -149,10 +169,26 @@ export const PnLGraph = () => {
                   />
                   <YAxis
                     domain={yAxisDomain}
-                    tickFormatter={(value) => formatCurrency(value)}
+                    tickFormatter={(value) => formatIndianNumber(value)}
                     stroke="#888"
                     className="dark:stroke-gray-400"
-                    width={100}
+                    width={80}
+                    tick={({ x, y, payload }) => {
+                      const value = payload.value;
+                      const color = value < 0 ? '#ef4444' : '#888';
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          dy={4}
+                          textAnchor="end"
+                          fill={color}
+                          className="text-xs"
+                        >
+                          {formatIndianNumber(value)}
+                        </text>
+                      );
+                    }}
                   />
                   <Tooltip
                     content={({ active, payload }) => {
