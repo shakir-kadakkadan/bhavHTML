@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "sudoku-trades",
+    "site": "trial-and-error",
     "public": "dist",
     "ignore": [
       "firebase.json",

@@ -28,6 +28,27 @@ export const IPTracking = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const getItemSignature = (item: IPData): string => {
+    // Create a signature based on all fields except id and timestamp
+    return JSON.stringify({
+      query: item.query,
+      city: item.city,
+      regionName: item.regionName,
+      country: item.country,
+      isp: item.isp,
+      currentPath: item.currentPath,
+      currentURL: item.currentURL,
+      referrer: item.referrer,
+      source: item.source,
+      campaign: item.campaign,
+      userAgent: item.userAgent,
+      screenWidth: item.screenWidth,
+      screenHeight: item.screenHeight,
+      viewportWidth: item.viewportWidth,
+      viewportHeight: item.viewportHeight,
+    });
+  };
+
   const loadData = async () => {
     setLoading(true);
     setError(null);
@@ -50,7 +71,15 @@ export const IPTracking = () => {
         }))
         .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-      setData(dataArray);
+      // Filter to show only the latest entry for consecutive duplicates
+      const filteredData = dataArray.filter((item, index) => {
+        if (index === 0) return true; // Always keep the first item
+        const currentSignature = getItemSignature(item);
+        const previousSignature = getItemSignature(dataArray[index - 1]);
+        return currentSignature !== previousSignature;
+      });
+
+      setData(filteredData);
       setLoading(false);
     } catch (err) {
       setLoading(false);

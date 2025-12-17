@@ -27,6 +27,7 @@ export const PnLGraph = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
+  const [xAxisDomain, setXAxisDomain] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,15 @@ export const PnLGraph = () => {
           const offset = range * 0.1; // 10% offset
 
           setYAxisDomain([min - offset, max + offset]);
+
+          // Calculate min and max dates with offset
+          const dates = data.map((d) => d.dateMilli);
+          const minDate = Math.min(...dates);
+          const maxDate = Math.max(...dates);
+          const dateRange = maxDate - minDate;
+          const dateOffset = dateRange * 0.05; // 5% offset for dates
+
+          setXAxisDomain([minDate - dateOffset, maxDate + dateOffset]);
         }
 
         setLoading(false);
@@ -163,6 +173,9 @@ export const PnLGraph = () => {
                   <CartesianGrid strokeDasharray="3 3" className="dark:opacity-30" />
                   <XAxis
                     dataKey="dateMilli"
+                    domain={xAxisDomain}
+                    type="number"
+                    scale="time"
                     tickFormatter={formatDate}
                     stroke="#888"
                     className="dark:stroke-gray-400"
@@ -230,7 +243,7 @@ export const PnLGraph = () => {
                     dataKey="ntplTillDate"
                     stroke="#667eea"
                     strokeWidth={2}
-                    dot={{ r: 3 }}
+                    dot={{ r: 2, fill: '#667eea', strokeWidth: 0 }}
                     activeDot={{ r: 6 }}
                     name="Cumulative P&L"
                   />
