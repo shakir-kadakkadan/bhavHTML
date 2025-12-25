@@ -39,7 +39,7 @@ export const TradeItem = ({ trade, useFullFormat, showDate, mobileDesktopView = 
         </span>
       </div>
       <div className={`${getHiddenClass('flex')} flex-col items-end`}>
-        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase">Value</span>
+        <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase">Position Size</span>
         <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">{formatCurrency(trade.value, useFullFormat)}</span>
       </div>
       <div className="flex flex-col items-end">

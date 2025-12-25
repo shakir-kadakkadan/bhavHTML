@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { database } from '../utils/firebase';
-import { ref, get } from 'firebase/database';
+import { ref, get, remove } from 'firebase/database';
 
 interface IPData {
   id: string;
@@ -87,6 +87,23 @@ export const IPTracking = () => {
     }
   };
 
+  const deleteAllData = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete ALL IP tracking data? This action cannot be undone!'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const ipRef = ref(database, '/ip_details');
+      await remove(ipRef);
+      setData([]);
+      alert('All IP tracking data has been deleted successfully.');
+    } catch (err) {
+      alert(`Failed to delete data: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
@@ -141,12 +158,20 @@ export const IPTracking = () => {
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">IP Tracking Data</h1>
           <p className="text-base md:text-lg opacity-90">Visitor analytics from all pages</p>
-          <button
-            onClick={loadData}
-            className="absolute top-6 right-6 px-4 py-2 bg-white/20 text-white border-2 border-white rounded font-semibold hover:bg-white hover:text-[#667eea] transition-all"
-          >
-            🔄 Refresh
-          </button>
+          <div className="absolute top-6 right-6 flex gap-2">
+            <button
+              onClick={loadData}
+              className="px-4 py-2 bg-white/20 text-white border-2 border-white rounded font-semibold hover:bg-white hover:text-[#667eea] transition-all"
+            >
+              🔄 Refresh
+            </button>
+            <button
+              onClick={deleteAllData}
+              className="px-4 py-2 bg-red-500/80 text-white border-2 border-white rounded font-semibold hover:bg-red-600 hover:border-red-200 transition-all"
+            >
+              🗑️ Delete All
+            </button>
+          </div>
         </div>
 
         {/* Content */}

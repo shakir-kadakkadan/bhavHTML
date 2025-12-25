@@ -4,6 +4,8 @@ import { ThemeProvider } from './components/ThemeProvider';
 import { PnLDashboard } from './pages/PnLDashboard';
 import { IPTracking } from './pages/IPTracking';
 import { PnLGraph } from './pages/PnLGraph';
+import { SocialPreview } from './pages/SocialPreview';
+import { AddSocial } from './pages/AddSocial';
 
 function App() {
   useEffect(() => {
@@ -25,6 +27,8 @@ function App() {
           <Route path="/pl" element={<PnLDashboard />} />
           <Route path="/plgraph" element={<PnLGraph />} />
           <Route path="/ip" element={<IPTracking />} />
+          <Route path="/add_social" element={<AddSocial />} />
+          <Route path="/l/*" element={<SocialPreview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
