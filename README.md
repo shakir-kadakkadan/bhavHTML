@@ -71,3 +71,38 @@ export default defineConfig([
   },
 ])
 ```
+
+## Upload ITR JSONs Script
+
+This project includes a utility script to upload JSON files to Firebase Realtime Database.
+
+### How to Run
+
+```bash
+node upload-itr-jsons.cjs
+```
+
+### What It Does
+
+- Reads all JSON files from `/Users/shakir/BhavAppData/DATA/itrjsons`
+- Uploads each file to Firebase Realtime Database at `https://bhavpc-default-rtdb.asia-southeast1.firebasedatabase.app`
+- Each file is stored under `/itrjsons/{filename}` (without the .json extension)
+- Shows progress with ✓ for successful uploads and ✗ for failures
+
+### Requirements
+
+- Node.js installed
+- JSON files in the source directory: `/Users/shakir/BhavAppData/DATA/itrjsons`
+- Network access to Firebase Realtime Database
+
+### Output Example
+
+```
+Found 3 JSON file(s) to upload...
+
+✓ Uploaded: file1
+✓ Uploaded: file2
+✓ Uploaded: file3
+
+✓ Upload process completed!
+```

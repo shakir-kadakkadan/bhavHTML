@@ -6,6 +6,7 @@ import { IPTracking } from './pages/IPTracking';
 import { PnLGraph } from './pages/PnLGraph';
 import { SocialPreview } from './pages/SocialPreview';
 import { AddSocial } from './pages/AddSocial';
+import { ITRFilings } from './pages/ITRFilings';
 
 function App() {
   useEffect(() => {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/plgraph" element={<PnLGraph />} />
           <Route path="/ip" element={<IPTracking />} />
           <Route path="/add_social" element={<AddSocial />} />
+          <Route path="/itr" element={<ITRFilings />} />
           <Route path="/l/*" element={<SocialPreview />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
