@@ -17,7 +17,7 @@ export const formatCurrency = (amount: number | null | undefined, useFullFormat:
     } else if (absAmount >= 1000) {
       return sign + parseFloat((absAmount / 1000).toFixed(1)) + ' K';
     } else {
-      return sign + parseFloat(absAmount.toFixed(1));
+      return sign + parseFloat(absAmount.toFixed(0));
     }
   }
 };
