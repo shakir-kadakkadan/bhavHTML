@@ -341,19 +341,19 @@ export const PnLGraph = () => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload as PnLGraphData;
                         return (
-                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                               {formatDate(data.dateMilli)}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
                               <span className="font-medium">P&L Till Date:</span>{' '}
-                              <span className={data.ntplTillDate >= 0 ? 'text-green-600' : 'text-red-600'}>
+                              <span className={data.ntplTillDate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                                 {formatCurrency(data.ntplTillDate)}
                               </span>
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
                               <span className="font-medium">Daily P&L:</span>{' '}
-                              <span className={data.ntpl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                              <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                                 {formatCurrency(data.ntpl)}
                               </span>
                             </p>
@@ -450,13 +450,13 @@ export const PnLGraph = () => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload as PnLGraphData;
                         return (
-                          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                               {formatDate(data.dateMilli)}
                             </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
                               <span className="font-medium">Daily P&L:</span>{' '}
-                              <span className={data.ntpl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                              <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                                 {formatCurrency(data.ntpl)}
                               </span>
                             </p>
@@ -612,17 +612,18 @@ export const PnLGraph = () => {
                       }}
                     />
                     <Tooltip
+                      cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload as PnLGraphData;
                           return (
-                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
                                 {formatDate(data.dateMilli)}
                               </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
                                 <span className="font-medium">{timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} P&L:</span>{' '}
-                                <span className={data.ntpl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                                   {formatCurrency(data.ntpl)}
                                 </span>
                               </p>

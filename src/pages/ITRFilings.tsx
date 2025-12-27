@@ -7,8 +7,13 @@ import { formatCurrency } from '../utils/format';
 interface ITRData {
   assessmentYear: string;
   totalIncome: number;
-  totalTaxPaid: number;
+  grossTotalIncome: number;
+  salaryIncome: number;
+  businessIncome: number;
   speculativeIncome: number;
+  capitalGains: number;
+  otherSourcesIncome: number;
+  totalTaxPaid: number;
   md5: string; // Actually SHA-256 hash, kept as 'md5' for variable naming consistency
 }
 
@@ -89,14 +94,26 @@ export const ITRFilings = () => {
                                    'N/A';
 
             const totalIncome = itrForm['PartB-TI']?.TotalIncome || 0;
+            const grossTotalIncome = itrForm['PartB-TI']?.GrossTotalIncome || 0;
+            const salaryIncome = itrForm.ScheduleS?.TotIncUnderHeadSalaries || 0;
+            const businessIncome = itrForm.ITR3ScheduleBP?.BusinessIncOthThanSpec?.NetPLBusOthThanSpec ||
+                                  itrForm.ITR3ScheduleBP?.BusinessIncOthThanSpec?.IncChrgUnHdProftGain || 0;
+            const speculativeIncome = itrForm.ITR3ScheduleBP?.SpecBusinessInc?.NetPLFrmSpecBus ||
+                                     itrForm.ITR3ScheduleBP?.SpecBusinessInc?.AdjustedPLFrmSpecuBus || 0;
+            const capitalGains = itrForm.ScheduleCGFor23?.SumOfCGIncm || 0;
+            const otherSourcesIncome = itrForm.ScheduleOS?.IncChargeable || 0;
             const totalTaxPaid = itrForm.PartB_TTI?.TaxPaid?.TaxesPaid?.TotalTaxesPaid || 0;
-            const speculativeIncome = itrForm.ITR3ScheduleBP?.SpecBusinessInc?.NetPLFrmSpecBus || 0;
 
             parsedData.push({
               assessmentYear,
               totalIncome,
-              totalTaxPaid,
+              grossTotalIncome,
+              salaryIncome,
+              businessIncome,
               speculativeIncome,
+              capitalGains,
+              otherSourcesIncome,
+              totalTaxPaid,
               md5
             });
           }
@@ -427,38 +444,76 @@ export const ITRFilings = () => {
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-100 dark:bg-gray-700">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
                           FY
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Salary
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Business
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Speculative
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Capital Gains
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Other Sources
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Gross Total
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                           Total Income
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                          Total Tax Paid
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                          Speculative Income
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          Tax Paid
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {itrData.map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white sticky left-0 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
                             {getFYFromAssessmentYear(item.assessmentYear)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-300">
-                            {formatCurrency(item.totalIncome, useFullFormat)}
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-300">
+                            {formatCurrency(item.salaryIncome, useFullFormat)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-300">
-                            {formatCurrency(item.totalTaxPaid, useFullFormat)}
+                          <td className={`px-4 py-4 whitespace-nowrap text-sm text-right font-medium ${
+                            item.businessIncome < 0
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-gray-900 dark:text-gray-300'
+                          }`}>
+                            {formatCurrency(item.businessIncome, useFullFormat)}
                           </td>
-                          <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${
+                          <td className={`px-4 py-4 whitespace-nowrap text-sm text-right font-medium ${
                             item.speculativeIncome < 0
                               ? 'text-red-600 dark:text-red-400'
                               : 'text-green-600 dark:text-green-400'
                           }`}>
                             {formatCurrency(item.speculativeIncome, useFullFormat)}
+                          </td>
+                          <td className={`px-4 py-4 whitespace-nowrap text-sm text-right font-medium ${
+                            item.capitalGains < 0
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-green-600 dark:text-green-400'
+                          }`}>
+                            {formatCurrency(item.capitalGains, useFullFormat)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right text-gray-900 dark:text-gray-300">
+                            {formatCurrency(item.otherSourcesIncome, useFullFormat)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-semibold text-blue-600 dark:text-blue-400">
+                            {formatCurrency(item.grossTotalIncome, useFullFormat)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-bold text-purple-600 dark:text-purple-400">
+                            {formatCurrency(item.totalIncome, useFullFormat)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-medium text-orange-600 dark:text-orange-400">
+                            {formatCurrency(item.totalTaxPaid, useFullFormat)}
                           </td>
                         </tr>
                       ))}

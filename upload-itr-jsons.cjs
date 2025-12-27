@@ -1,3 +1,6 @@
+
+//not used any more, moved to client side
+
 // how to run
 // node upload-itr-jsons.cjs
 
