@@ -7,6 +7,8 @@ import { PnLGraph } from './pages/PnLGraph';
 import { SocialPreview } from './pages/SocialPreview';
 import { AddSocial } from './pages/AddSocial';
 import { ITRFilings } from './pages/ITRFilings';
+import { LinksPage } from './pages/LinksPage';
+import { AdminLinks } from './pages/AdminLinks';
 
 function App() {
   useEffect(() => {
@@ -24,14 +26,19 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<PnLDashboard />} />
+
+          {/* <Route path="*" element={<BlankPage />} /> */}
+          <Route path="/" element={<Navigate to="/links/1" replace />} />
           <Route path="/pl" element={<PnLDashboard />} />
           <Route path="/plgraph" element={<PnLGraph />} />
           <Route path="/ip" element={<IPTracking />} />
           <Route path="/add_social" element={<AddSocial />} />
+          <Route path="/admin/links" element={<AdminLinks />} />
           <Route path="/itr" element={<ITRFilings />} />
           <Route path="/l/*" element={<SocialPreview />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/links/:username" element={<LinksPage />} />
+          <Route path="*" element={<Navigate to="/links/1" replace />} />
+
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

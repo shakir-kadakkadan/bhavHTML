@@ -44,3 +44,40 @@ export interface FiscalYear {
 
 // PnLData is now an array of FiscalYear objects
 export type PnLData = FiscalYear[];
+
+// Linktree Types
+export interface LinkItem {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  icon?: string;
+  enabled: boolean;
+  order: number;
+  clicks?: number;
+}
+
+export interface SocialLink {
+  [platform: string]: string;
+}
+
+export interface LinkPageMetadata {
+  createdAt: number;
+  updatedAt: number;
+  totalClicks: number;
+  viewCount: number;
+}
+
+export interface LinkPage {
+  title: string;
+  bio: string;
+  avatar?: string;
+  theme?: 'gradient' | 'minimal' | 'dark';
+  socialLinks?: SocialLink;
+  links: LinkItem[];
+  metadata?: LinkPageMetadata;
+}
+
+export interface LinksData {
+  [username: string]: LinkPage;
+}

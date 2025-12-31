@@ -50,9 +50,9 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
                 <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} />
               </div>
             )}
-            <div className={getHiddenClass('block')}>
+            {/* <div className={getHiddenClass('block')}>
               <SummaryItem label="Gross Bill" value={fiscalYear.grossBill} useFullFormat={useFullFormat} />
-            </div>
+            </div> */}
             <div className={getHiddenClass('block')}>
               <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
             </div>
@@ -70,7 +70,7 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
                 <th className="p-3 text-left font-semibold">Date</th>
                 <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Bill</th>
                 <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Expense</th>
-                <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Gross Bill</th>
+                {/* <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Gross Bill</th> */}
                 <th className={`p-3 text-right font-semibold ${getHiddenClass('table-cell')}`}>Trade P&L</th>
                 <th className="p-3 text-right font-semibold">Net P&L</th>
               </tr>
@@ -94,7 +94,7 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
                           ? `~${formatCurrency(entry.calculatedExpense, useFullFormat)}`
                           : formatCurrency(0, useFullFormat)}
                     </td>
-                    <td className={`p-3 text-right ${getPnLColor(entry.grossBill)} ${getHiddenClass('table-cell')}`}>{formatCurrency(entry.grossBill, useFullFormat)}</td>
+                    {/* <td className={`p-3 text-right ${getPnLColor(entry.grossBill)} ${getHiddenClass('table-cell')}`}>{formatCurrency(entry.grossBill, useFullFormat)}</td> */}
                     <td className={`p-3 text-right ${getPnLColor(entry.tpl)} ${getHiddenClass('table-cell')}`}>
                       {formatCurrency(entry.tpl, useFullFormat)}
                     </td>

@@ -239,8 +239,8 @@ export const PnLGraph = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-5 md:p-5 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-0 md:p-5 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 md:rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
           <a
@@ -264,20 +264,10 @@ export const PnLGraph = () => {
             </svg>
           </a>
           <h1 className="text-2xl md:text-4xl font-bold mb-2">P&L Growth Chart</h1>
-          <p className="text-base md:text-lg opacity-90">
-            <a
-              href="https://linktr.ee/trial_a.n.d_error"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white no-underline hover:text-gray-200 transition-colors"
-            >
-              https://linktr.ee/trial_a.n.d_error (Verified P&L)
-            </a>
-          </p>
         </div>
 
         {/* Content */}
-        <div className="p-3 md:p-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div className="p-0 md:p-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
           {loading && (
             <div className="text-center py-12 text-lg text-[#667eea] dark:text-blue-400">
               Loading chart data...
@@ -291,7 +281,7 @@ export const PnLGraph = () => {
           )}
 
           {!loading && !error && graphData.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg">
+            <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg">
               <ResponsiveContainer width="100%" height={500}>
                 <LineChart
                   data={graphData}
@@ -397,7 +387,7 @@ export const PnLGraph = () => {
 
           {/* Daily P&L Chart */}
           {!loading && !error && graphData.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg mt-6">
+            <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg mt-6">
               <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
                 Daily P&L
               </h2>
@@ -512,7 +502,7 @@ export const PnLGraph = () => {
             const barYAxisDomain: [number, number] = [barMin - barOffset, barMax + barOffset];
 
             return (
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg mt-6">
+              <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg mt-6">
                 <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
                   Daily P&L (Bar Chart)
                 </h2>

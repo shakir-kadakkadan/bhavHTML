@@ -47,8 +47,8 @@ export const PnLDashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-5 md:p-5 transition-colors duration-300">
-      <div className={`${mobileDesktopView ? 'min-w-[1200px]' : 'max-w-7xl'} mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300`}>
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-0 md:p-5 transition-colors duration-300">
+      <div className={`${mobileDesktopView ? 'min-w-[1200px]' : 'max-w-7xl'} mx-auto bg-white dark:bg-gray-800 md:rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
           <div className={`absolute top-4 right-4 md:top-8 md:right-8 ${mobileDesktopView ? 'flex' : 'hidden md:flex'} items-center gap-4`}>
@@ -74,16 +74,6 @@ export const PnLDashboard = () => {
           </div>
 
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Profit & Loss Statement</h1>
-          <p className="text-base md:text-lg opacity-90 mb-4">
-            <a
-              href="https://linktr.ee/trial_a.n.d_error"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white no-underline hover:text-gray-200 transition-colors"
-            >
-              https://linktr.ee/trial_a.n.d_error (Verified P&L)
-            </a>
-          </p>
 
           {/* Chart Icon */}
           <a
@@ -110,7 +100,7 @@ export const PnLDashboard = () => {
         </div>
 
         {/* Content */}
-        <div className="p-3 md:p-5 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <div className="p-0 md:p-5 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
           {loading && (
             <div className="text-center py-12 text-lg text-[#667eea] dark:text-blue-400">
               Loading P&L data...
