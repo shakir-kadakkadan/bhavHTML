@@ -29,11 +29,12 @@ export const PnLGraph = () => {
   const [graphData, setGraphData] = useState<PnLGraphData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [yAxisDomain, setYAxisDomain] = useState<[number, number]>([0, 0]);
-  const [xAxisDomain, setXAxisDomain] = useState<[number, number]>([0, 0]);
-  const [dailyYAxisDomain, setDailyYAxisDomain] = useState<[number, number]>([0, 0]);
   const [timeframe, setTimeframe] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
   const [currentPage, setCurrentPage] = useState(0);
+  const [cumulativeTimeframe, setCumulativeTimeframe] = useState<'year' | 'month' | 'all'>('all');
+  const [dailyChartTimeframe, setDailyChartTimeframe] = useState<'year' | 'month' | 'all'>('all');
+  const [calendarYear, setCalendarYear] = useState<number | 'last365'>(new Date().getFullYear());
+  const [hoveredDay, setHoveredDay] = useState<{ date: Date; value: number | null; x: number; y: number } | null>(null);
 
   // Set to last page when timeframe changes or data loads
   useEffect(() => {
@@ -47,6 +48,13 @@ export const PnLGraph = () => {
     }
   }, [timeframe, graphData]);
 
+  // Set calendar year to last 365 days by default
+  useEffect(() => {
+    if (graphData.length > 0) {
+      setCalendarYear('last365');
+    }
+  }, [graphData]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,36 +64,6 @@ export const PnLGraph = () => {
         }
         const data: PnLGraphData[] = await response.json();
         setGraphData(data);
-
-        // Calculate min and max of ntplTillDate with offset
-        if (data.length > 0) {
-          const cumulativeValues = data.map((d) => d.ntplTillDate);
-          const min = Math.min(...cumulativeValues);
-          const max = Math.max(...cumulativeValues);
-          const range = max - min;
-          const offset = range * 0.1; // 10% offset
-
-          setYAxisDomain([min - offset, max + offset]);
-
-          // Calculate min and max of daily ntpl with offset
-          const dailyValues = data.map((d) => d.ntpl);
-          const dailyMin = Math.min(...dailyValues);
-          const dailyMax = Math.max(...dailyValues);
-          const dailyRange = dailyMax - dailyMin;
-          const dailyOffset = dailyRange * 0.1; // 10% offset
-
-          setDailyYAxisDomain([dailyMin - dailyOffset, dailyMax + dailyOffset]);
-
-          // Calculate min and max dates with offset
-          const dates = data.map((d) => d.dateMilli);
-          const minDate = Math.min(...dates);
-          const maxDate = Math.max(...dates);
-          const dateRange = maxDate - minDate;
-          const dateOffset = dateRange * 0.05; // 5% offset for dates
-
-          setXAxisDomain([minDate - dateOffset, maxDate + dateOffset]);
-        }
-
         setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -134,6 +112,23 @@ export const PnLGraph = () => {
     } else {
       return `${sign}${Math.round(absValue)}`;
     }
+  };
+
+  const filterDataByTimeframe = (data: PnLGraphData[], timeframeFilter: 'year' | 'month' | 'all') => {
+    if (timeframeFilter === 'all') {
+      return data;
+    }
+
+    const now = new Date();
+    const cutoffDate = new Date();
+
+    if (timeframeFilter === 'year') {
+      cutoffDate.setFullYear(now.getFullYear() - 1);
+    } else if (timeframeFilter === 'month') {
+      cutoffDate.setMonth(now.getMonth() - 1);
+    }
+
+    return data.filter(item => item.dateMilli >= cutoffDate.getTime());
   };
 
   const generateRoundTicks = (min: number, max: number): number[] => {
@@ -238,6 +233,112 @@ export const PnLGraph = () => {
     };
   };
 
+  // Helper function to get date string in local timezone
+  const getLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Calendar heatmap helper functions
+  const getCalendarData = (data: PnLGraphData[], yearOrMode: number | 'last365') => {
+    // Create a map of dates to P&L values
+    const dataMap = new Map<string, number>();
+    data.forEach((item) => {
+      const dateStr = getLocalDateString(new Date(item.dateMilli));
+      dataMap.set(dateStr, item.ntpl);
+    });
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (yearOrMode === 'last365') {
+      // Last 365 days ending today
+      endDate = new Date();
+      endDate.setHours(0, 0, 0, 0);
+      startDate = new Date(endDate);
+      startDate.setDate(endDate.getDate() - 364); // 365 days total including today
+    } else {
+      // Specific year
+      startDate = new Date(yearOrMode, 0, 1);
+      endDate = new Date(yearOrMode, 11, 31);
+    }
+
+    // Adjust start to the previous Sunday to align the calendar
+    const startDay = startDate.getDay();
+    const adjustedStart = new Date(startDate);
+    adjustedStart.setDate(startDate.getDate() - startDay);
+
+    // Adjust end to the next Saturday to complete the week
+    const endDay = endDate.getDay();
+    const adjustedEnd = new Date(endDate);
+    if (endDay !== 6) {
+      adjustedEnd.setDate(endDate.getDate() + (6 - endDay));
+    }
+
+    // Generate calendar grid
+    const weeks: Array<Array<{ date: Date; value: number | null; dateStr: string }>> = [];
+    let currentWeek: Array<{ date: Date; value: number | null; dateStr: string }> = [];
+    const current = new Date(adjustedStart);
+
+    while (current <= adjustedEnd) {
+      if (currentWeek.length === 7) {
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+
+      const dateStr = getLocalDateString(current);
+      const value = dataMap.get(dateStr) ?? null;
+
+      currentWeek.push({
+        date: new Date(current),
+        value: value,
+        dateStr,
+      });
+
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Push the last week if it exists
+    if (currentWeek.length > 0) {
+      weeks.push(currentWeek);
+    }
+
+    return weeks;
+  };
+
+  const getColorForValue = (value: number | null) => {
+    if (value === null) {
+      return 'bg-gray-100 dark:bg-gray-700';
+    }
+
+    const absValue = Math.abs(value);
+    const isProfit = value >= 0;
+
+    // Determine opacity based on value (you can adjust these thresholds)
+    let opacity = 20;
+    if (absValue > 100000) opacity = 90;
+    else if (absValue > 50000) opacity = 70;
+    else if (absValue > 25000) opacity = 50;
+    else if (absValue > 10000) opacity = 30;
+    else if (absValue > 0) opacity = 20;
+
+    if (isProfit) {
+      return `bg-green-500/${opacity}`;
+    } else {
+      return `bg-red-500/${opacity}`;
+    }
+  };
+
+  const getAvailableYears = (data: PnLGraphData[]) => {
+    const years = new Set<number>();
+    data.forEach((item) => {
+      years.add(new Date(item.dateMilli).getFullYear());
+    });
+    return Array.from(years).sort((a, b) => b - a); // Most recent first
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] dark:from-gray-900 dark:to-gray-800 p-0 md:p-5 transition-colors duration-300">
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 md:rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
@@ -263,7 +364,7 @@ export const PnLGraph = () => {
               />
             </svg>
           </a>
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">P&L Growth Chart</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Trading Performance Analytics</h1>
         </div>
 
         {/* Content */}
@@ -280,213 +381,495 @@ export const PnLGraph = () => {
             </div>
           )}
 
-          {!loading && !error && graphData.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg">
-              <ResponsiveContainer width="100%" height={500}>
-                <LineChart
-                  data={graphData}
-                  margin={{
-                    top: 5,
-                    right: 80,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="dark:opacity-30" />
-                  <XAxis
-                    dataKey="dateMilli"
-                    domain={xAxisDomain}
-                    type="number"
-                    scale="time"
-                    tickFormatter={formatDate}
-                    stroke="#888"
-                    className="dark:stroke-gray-400"
-                  />
-                  <YAxis
-                    domain={yAxisDomain}
-                    ticks={generateRoundTicks(yAxisDomain[0], yAxisDomain[1])}
-                    tickFormatter={(value) => formatIndianNumber(value)}
-                    stroke="#888"
-                    className="dark:stroke-gray-400"
-                    width={80}
-                    tick={({ x, y, payload }) => {
-                      const value = payload.value;
-                      const color = value < 0 ? '#ef4444' : '#888';
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          dy={4}
-                          textAnchor="end"
-                          fill={color}
-                          className="text-xs"
-                        >
-                          {formatIndianNumber(value)}
-                        </text>
-                      );
-                    }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload as PnLGraphData;
-                        return (
-                          <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                              {formatDate(data.dateMilli)}
-                            </p>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              <span className="font-medium">P&L Till Date:</span>{' '}
-                              <span className={data.ntplTillDate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                {formatCurrency(data.ntplTillDate)}
-                              </span>
-                            </p>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              <span className="font-medium">Daily P&L:</span>{' '}
-                              <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                {formatCurrency(data.ntpl)}
-                              </span>
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Legend />
-                  <ReferenceLine
-                    y={0}
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    label={{ value: 'Break Even', position: 'right', fill: '#ef4444', fontSize: 12 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="ntplTillDate"
-                    stroke="#667eea"
-                    strokeWidth={2}
-                    dot={{ r: 2, fill: '#667eea', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
-                    name="Cumulative P&L"
-                  />
-                  <Brush
-                    dataKey="dateMilli"
-                    height={30}
-                    stroke="#667eea"
-                    tickFormatter={formatDate}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {!loading && !error && graphData.length > 0 && (() => {
+            const filteredData = filterDataByTimeframe(graphData, cumulativeTimeframe);
 
-              <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-                <p>Drag the brush at the bottom to zoom into specific time periods</p>
+            // Calculate axis domains for filtered data
+            const cumulativeValues = filteredData.map((d) => d.ntplTillDate);
+            const min = Math.min(...cumulativeValues);
+            const max = Math.max(...cumulativeValues);
+            const range = max - min;
+            const offset = range * 0.1;
+            const filteredYAxisDomain: [number, number] = [min - offset, max + offset];
+
+            const dates = filteredData.map((d) => d.dateMilli);
+            const minDate = Math.min(...dates);
+            const maxDate = Math.max(...dates);
+            const dateRange = maxDate - minDate;
+            const dateOffset = dateRange * 0.05;
+            const filteredXAxisDomain: [number, number] = [minDate - dateOffset, maxDate + dateOffset];
+
+            return (
+              <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg">
+                <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+                  P&L Growth Chart
+                </h2>
+
+                {/* Timeframe Selector */}
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  {(['year', 'month', 'all'] as const).map((tf) => (
+                    <button
+                      key={tf}
+                      onClick={() => setCumulativeTimeframe(tf)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${cumulativeTimeframe === tf
+                        ? 'bg-[#667eea] text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        }`}
+                    >
+                      {tf === 'year' ? 'Last Year' : tf === 'month' ? 'Last Month' : 'All Days'}
+                    </button>
+                  ))}
+                </div>
+
+                <ResponsiveContainer width="100%" height={500}>
+                  <LineChart
+                    data={filteredData}
+                    margin={{
+                      top: 5,
+                      right: 80,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="dark:opacity-30" />
+                    <XAxis
+                      dataKey="dateMilli"
+                      domain={filteredXAxisDomain}
+                      type="number"
+                      scale="time"
+                      tickFormatter={formatDate}
+                      stroke="#888"
+                      className="dark:stroke-gray-400"
+                    />
+                    <YAxis
+                      domain={filteredYAxisDomain}
+                      ticks={generateRoundTicks(filteredYAxisDomain[0], filteredYAxisDomain[1])}
+                      tickFormatter={(value) => formatIndianNumber(value)}
+                      stroke="#888"
+                      className="dark:stroke-gray-400"
+                      width={80}
+                      tick={({ x, y, payload }) => {
+                        const value = payload.value;
+                        const color = value < 0 ? '#ef4444' : '#888';
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            dy={4}
+                            textAnchor="end"
+                            fill={color}
+                            className="text-xs"
+                          >
+                            {formatIndianNumber(value)}
+                          </text>
+                        );
+                      }}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload as PnLGraphData;
+                          return (
+                            <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                {formatDate(data.dateMilli)}
+                              </p>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
+                                <span className="font-medium">P&L Till Date:</span>{' '}
+                                <span className={data.ntplTillDate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                  {formatCurrency(data.ntplTillDate)}
+                                </span>
+                              </p>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
+                                <span className="font-medium">Daily P&L:</span>{' '}
+                                <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                  {formatCurrency(data.ntpl)}
+                                </span>
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                    <ReferenceLine
+                      y={0}
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      label={{ value: 'Break Even', position: 'right', fill: '#ef4444', fontSize: 12 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="ntplTillDate"
+                      stroke="#667eea"
+                      strokeWidth={2}
+                      dot={{ r: 2, fill: '#667eea', strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                      name="Cumulative P&L"
+                    />
+                    <Brush
+                      dataKey="dateMilli"
+                      height={30}
+                      stroke="#667eea"
+                      tickFormatter={formatDate}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+
+                <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <p>Drag the brush at the bottom to zoom into specific time periods</p>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
+
+          {/* GitHub-like Calendar Heatmap */}
+          {!loading && !error && graphData.length > 0 && (() => {
+            const availableYears = getAvailableYears(graphData);
+            const calendarData = getCalendarData(graphData, calendarYear);
+
+            // Generate month labels based on actual calendar data
+            const monthLabels: Array<{ name: string; weekIndex: number }> = [];
+            let lastMonth = -1;
+            calendarData.forEach((week, weekIdx) => {
+              const firstDay = week[0].date;
+              const month = firstDay.getMonth();
+              if (month !== lastMonth && weekIdx < calendarData.length - 1) {
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                monthLabels.push({ name: monthNames[month], weekIndex: weekIdx });
+                lastMonth = month;
+              }
+            });
+
+            return (
+              <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg mt-6">
+                <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+                  P&L Calendar Heatmap
+                </h2>
+
+                {/* Year Selector */}
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  <button
+                    onClick={() => setCalendarYear('last365')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${calendarYear === 'last365'
+                      ? 'bg-[#667eea] text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      }`}
+                  >
+                    Last Year
+                  </button>
+                  {availableYears.map((year) => (
+                    <button
+                      key={year}
+                      onClick={() => setCalendarYear(year)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${calendarYear === year
+                        ? 'bg-[#667eea] text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        }`}
+                    >
+                      {year}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="w-full relative">
+                  <div className="w-full">
+                    {/* Month Labels */}
+                    <div className="mb-4 flex items-center">
+                      <div style={{ width: '40px' }}></div>
+                      <div className="flex-1 flex relative" style={{ height: '20px' }}>
+                        {monthLabels.map((monthLabel, idx) => {
+                          const totalWeeks = calendarData.length;
+                          const cellWidth = `calc((100% - ${(totalWeeks - 1) * 3}px) / ${totalWeeks})`;
+                          const leftPosition = `calc(${monthLabel.weekIndex} * ${cellWidth} + ${monthLabel.weekIndex * 3}px)`;
+
+                          return (
+                            <div
+                              key={idx}
+                              className="absolute text-xs text-gray-600 dark:text-gray-400"
+                              style={{
+                                left: leftPosition,
+                              }}
+                            >
+                              {monthLabel.name}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Day Labels and Calendar */}
+                    <div className="flex w-full" style={{ height: '200px' }}>
+                      {/* Day of week labels */}
+                      <div className="pr-2 text-xs text-gray-600 dark:text-gray-400 flex flex-col" style={{ gap: '3px' }}>
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-center"
+                            style={{
+                              flex: '1 1 0',
+                              minHeight: 0
+                            }}
+                          >
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Calendar grid */}
+                      <div className="flex flex-1" style={{ gap: '3px' }}>
+                        {calendarData.map((week, weekIdx) => (
+                          <div key={weekIdx} className="flex flex-col flex-1" style={{ gap: '3px' }}>
+                            {week.map((day, dayIdx) => {
+                              const colorClass = getColorForValue(day.value);
+
+                              return (
+                                <div
+                                  key={dayIdx}
+                                  className={`rounded-sm ${colorClass} cursor-pointer hover:ring-2 hover:ring-gray-400 dark:hover:ring-gray-500 transition-all`}
+                                  style={{
+                                    aspectRatio: '1',
+                                    flex: '1 1 0',
+                                    minHeight: 0
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setHoveredDay({
+                                      date: day.date,
+                                      value: day.value,
+                                      x: rect.left + rect.width / 2,
+                                      y: rect.top - 10,
+                                    });
+                                  }}
+                                  onMouseLeave={() => setHoveredDay(null)}
+                                  onClick={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setHoveredDay({
+                                      date: day.date,
+                                      value: day.value,
+                                      x: rect.left + rect.width / 2,
+                                      y: rect.top - 10,
+                                    });
+                                    setTimeout(() => setHoveredDay(null), 3000);
+                                  }}
+                                  onTouchStart={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setHoveredDay({
+                                      date: day.date,
+                                      value: day.value,
+                                      x: rect.left + rect.width / 2,
+                                      y: rect.top - 10,
+                                    });
+                                    setTimeout(() => setHoveredDay(null), 3000);
+                                  }}
+                                />
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Legend */}
+                    <div className="flex items-center justify-center gap-6 mt-6 text-xs text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-2">
+                        <span>Loss</span>
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 bg-red-500/20 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-red-500/30 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-red-500/50 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-red-500/70 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-red-500/90 rounded-sm"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>Profit</span>
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 bg-green-500/20 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-green-500/30 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-green-500/50 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-green-500/70 rounded-sm"></div>
+                          <div className="w-3 h-3 bg-green-500/90 rounded-sm"></div>
+                        </div>
+                        <span>More</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hover Tooltip */}
+                  {hoveredDay && (
+                    <div
+                      className="fixed z-50 pointer-events-none"
+                      style={{
+                        left: `${hoveredDay.x}px`,
+                        top: `${hoveredDay.y}px`,
+                        transform: 'translate(-50%, -100%)',
+                      }}
+                    >
+                      <div className="bg-gray-800 dark:bg-gray-900 text-white px-4 py-3 rounded-lg shadow-2xl border border-gray-700">
+                        <div className="text-sm font-semibold mb-1">
+                          {hoveredDay.date.toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </div>
+                        <div className="text-base font-bold">
+                          Daily P&L:{' '}
+                          <span className={hoveredDay.value !== null && hoveredDay.value >= 0 ? 'text-green-400' : 'text-red-400'}>
+                            {hoveredDay.value !== null ? formatCurrency(hoveredDay.value) : 'No data'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="absolute left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-gray-800 dark:border-t-gray-900"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Daily P&L Chart */}
-          {!loading && !error && graphData.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg mt-6">
-              <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
-                Daily P&L
-              </h2>
-              <ResponsiveContainer width="100%" height={500}>
-                <LineChart
-                  data={graphData}
-                  margin={{
-                    top: 5,
-                    right: 80,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="dark:opacity-30" />
-                  <XAxis
-                    dataKey="dateMilli"
-                    domain={xAxisDomain}
-                    type="number"
-                    scale="time"
-                    tickFormatter={formatDate}
-                    stroke="#888"
-                    className="dark:stroke-gray-400"
-                  />
-                  <YAxis
-                    domain={dailyYAxisDomain}
-                    ticks={generateRoundTicks(dailyYAxisDomain[0], dailyYAxisDomain[1])}
-                    tickFormatter={(value) => formatIndianNumber(value)}
-                    stroke="#888"
-                    className="dark:stroke-gray-400"
-                    width={80}
-                    tick={({ x, y, payload }) => {
-                      const value = payload.value;
-                      const color = value < 0 ? '#ef4444' : '#888';
-                      return (
-                        <text
-                          x={x}
-                          y={y}
-                          dy={4}
-                          textAnchor="end"
-                          fill={color}
-                          className="text-xs"
-                        >
-                          {formatIndianNumber(value)}
-                        </text>
-                      );
-                    }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload as PnLGraphData;
-                        return (
-                          <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                              {formatDate(data.dateMilli)}
-                            </p>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              <span className="font-medium">Daily P&L:</span>{' '}
-                              <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                {formatCurrency(data.ntpl)}
-                              </span>
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Legend />
-                  <ReferenceLine
-                    y={0}
-                    stroke="#ef4444"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    label={{ value: 'Break Even', position: 'right', fill: '#ef4444', fontSize: 12 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="ntpl"
-                    stroke="#fbbf24"
-                    strokeWidth={2}
-                    dot={{ r: 2, fill: '#fbbf24', strokeWidth: 0 }}
-                    activeDot={{ r: 6 }}
-                    name="Daily P&L"
-                  />
-                  <Brush
-                    dataKey="dateMilli"
-                    height={30}
-                    stroke="#fbbf24"
-                    tickFormatter={formatDate}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          {!loading && !error && graphData.length > 0 && (() => {
+            const filteredDailyData = filterDataByTimeframe(graphData, dailyChartTimeframe);
 
-              <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-                <p>Drag the brush at the bottom to zoom into specific time periods</p>
+            // Calculate axis domains for filtered data
+            const dailyValues = filteredDailyData.map((d) => d.ntpl);
+            const dailyMin = Math.min(...dailyValues);
+            const dailyMax = Math.max(...dailyValues);
+            const dailyRange = dailyMax - dailyMin;
+            const dailyOffset = dailyRange * 0.1;
+            const filteredDailyYAxisDomain: [number, number] = [dailyMin - dailyOffset, dailyMax + dailyOffset];
+
+            const dates = filteredDailyData.map((d) => d.dateMilli);
+            const minDate = Math.min(...dates);
+            const maxDate = Math.max(...dates);
+            const dateRange = maxDate - minDate;
+            const dateOffset = dateRange * 0.05;
+            const filteredDailyXAxisDomain: [number, number] = [minDate - dateOffset, maxDate + dateOffset];
+
+            return (
+              <div className="bg-white dark:bg-gray-800 md:rounded-lg p-2 md:p-6 shadow-lg mt-6">
+                <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200 text-center">
+                  Daily P&L
+                </h2>
+
+                {/* Timeframe Selector */}
+                <div className="flex flex-wrap justify-center gap-2 mb-4">
+                  {(['year', 'month', 'all'] as const).map((tf) => (
+                    <button
+                      key={tf}
+                      onClick={() => setDailyChartTimeframe(tf)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${dailyChartTimeframe === tf
+                        ? 'bg-[#667eea] text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        }`}
+                    >
+                      {tf === 'year' ? 'Last Year' : tf === 'month' ? 'Last Month' : 'All Days'}
+                    </button>
+                  ))}
+                </div>
+
+                <ResponsiveContainer width="100%" height={500}>
+                  <LineChart
+                    data={filteredDailyData}
+                    margin={{
+                      top: 5,
+                      right: 80,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="dark:opacity-30" />
+                    <XAxis
+                      dataKey="dateMilli"
+                      domain={filteredDailyXAxisDomain}
+                      type="number"
+                      scale="time"
+                      tickFormatter={formatDate}
+                      stroke="#888"
+                      className="dark:stroke-gray-400"
+                    />
+                    <YAxis
+                      domain={filteredDailyYAxisDomain}
+                      ticks={generateRoundTicks(filteredDailyYAxisDomain[0], filteredDailyYAxisDomain[1])}
+                      tickFormatter={(value) => formatIndianNumber(value)}
+                      stroke="#888"
+                      className="dark:stroke-gray-400"
+                      width={80}
+                      tick={({ x, y, payload }) => {
+                        const value = payload.value;
+                        const color = value < 0 ? '#ef4444' : '#888';
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            dy={4}
+                            textAnchor="end"
+                            fill={color}
+                            className="text-xs"
+                          >
+                            {formatIndianNumber(value)}
+                          </text>
+                        );
+                      }}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload as PnLGraphData;
+                          return (
+                            <div className="bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm p-4 rounded-lg shadow-xl border border-gray-200/50 dark:border-gray-700/50">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                {formatDate(data.dateMilli)}
+                              </p>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
+                                <span className="font-medium">Daily P&L:</span>{' '}
+                                <span className={data.ntpl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                  {formatCurrency(data.ntpl)}
+                                </span>
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                    <ReferenceLine
+                      y={0}
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      label={{ value: 'Break Even', position: 'right', fill: '#ef4444', fontSize: 12 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="ntpl"
+                      stroke="#fbbf24"
+                      strokeWidth={2}
+                      dot={{ r: 2, fill: '#fbbf24', strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                      name="Daily P&L"
+                    />
+                    <Brush
+                      dataKey="dateMilli"
+                      height={30}
+                      stroke="#fbbf24"
+                      tickFormatter={formatDate}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+
+                <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+                  <p>Drag the brush at the bottom to zoom into specific time periods</p>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Daily P&L Bar Chart */}
           {!loading && !error && graphData.length > 0 && (() => {
@@ -513,11 +896,10 @@ export const PnLGraph = () => {
                     <button
                       key={tf}
                       onClick={() => setTimeframe(tf)}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        timeframe === tf
-                          ? 'bg-[#667eea] text-white'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${timeframe === tf
+                        ? 'bg-[#667eea] text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        }`}
                     >
                       {tf.charAt(0).toUpperCase() + tf.slice(1)}
                     </button>
