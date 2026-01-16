@@ -3,12 +3,59 @@ import type { PnLData } from '../types';
 import { DATA_URL, trackIPData } from '../utils/firebase';
 import { FiscalYear } from '../components/FiscalYear';
 
+// Helper to check if title is a valid Calendar Year (e.g., "2024", "2025")
+const isCalendarYear = (title: string): boolean => {
+  const year = parseInt(title, 10);
+  return !isNaN(year) && year > 2000 && year <= 2100 && title === String(year);
+};
+
+// Helper to check if title is a Fiscal Year (e.g., "FY 2024-2025")
+const isFiscalYear = (title: string): boolean => {
+  return /^FY\s+\d{4}-\d{4}$/.test(title);
+};
+
+// Load year mode from localStorage (false = CY, true = FY)
+const loadYearMode = (): boolean => {
+  try {
+    const stored = localStorage.getItem('pnl-year-mode');
+    if (stored !== null) {
+      return JSON.parse(stored);
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return false; // Default: CY
+};
+
 export const PnLDashboard = () => {
   const [pnlData, setPnlData] = useState<PnLData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [useFullFormat, setUseFullFormat] = useState(false);
   const [mobileDesktopView, setMobileDesktopView] = useState(false);
+  const [showFY, setShowFY] = useState(loadYearMode); // false = CY, true = FY
+
+  // Save year mode to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('pnl-year-mode', JSON.stringify(showFY));
+  }, [showFY]);
+
+  // Filter fiscal years based on selection
+  const filterFiscalYears = (data: PnLData): PnLData => {
+    return data.filter(fy => {
+      const title = fy.title;
+      // Always show non-CY/non-FY items (like "All time summary", "Swing Trade")
+      if (!isCalendarYear(title) && !isFiscalYear(title)) {
+        return true;
+      }
+      // Show CY or FY based on toggle
+      if (showFY) {
+        return isFiscalYear(title);
+      } else {
+        return isCalendarYear(title);
+      }
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,13 +98,13 @@ export const PnLDashboard = () => {
       <div className={`${mobileDesktopView ? 'min-w-[1200px]' : 'max-w-7xl'} mx-auto bg-white dark:bg-gray-800 md:rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#667eea] to-[#764ba2] dark:from-gray-800 dark:to-gray-700 text-white p-6 md:p-8 text-center relative transition-colors duration-300">
-          <div className={`absolute top-4 right-4 md:top-8 md:right-8 ${mobileDesktopView ? 'flex' : 'hidden md:flex'} items-center gap-4`}>
+          <div className={`absolute top-4 right-4 md:top-8 md:right-8 ${mobileDesktopView ? 'flex' : 'hidden md:flex'} flex-col items-end gap-2`}>
             {/* Currency Toggle */}
             <div className="flex items-center gap-3 text-sm">
               <label htmlFor="currencyFormat" className="cursor-pointer select-none hidden md:block">
                 Short Format
               </label>
-              <div className="relative inline-block w-[50px] h-6">
+              <label htmlFor="currencyFormat" className="relative inline-block w-[50px] h-6 cursor-pointer">
                 <input
                   type="checkbox"
                   id="currencyFormat"
@@ -66,9 +113,28 @@ export const PnLDashboard = () => {
                   className="opacity-0 w-0 h-0"
                 />
                 <span className="toggle-slider" />
-              </div>
+              </label>
               <label htmlFor="currencyFormat" className="cursor-pointer select-none hidden md:block">
                 Full Amount
+              </label>
+            </div>
+            {/* CY/FY Toggle */}
+            <div className="flex items-center gap-3 text-sm">
+              <label htmlFor="yearMode" className="cursor-pointer select-none">
+                CY
+              </label>
+              <label htmlFor="yearMode" className="relative inline-block w-[50px] h-6 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="yearMode"
+                  checked={showFY}
+                  onChange={(e) => setShowFY(e.target.checked)}
+                  className="opacity-0 w-0 h-0"
+                />
+                <span className="toggle-slider" />
+              </label>
+              <label htmlFor="yearMode" className="cursor-pointer select-none">
+                FY
               </label>
             </div>
           </div>
@@ -115,7 +181,7 @@ export const PnLDashboard = () => {
 
           {pnlData && (
             <>
-              {pnlData.map((fy, index) => (
+              {filterFiscalYears(pnlData).map((fy, index) => (
                 <FiscalYear key={index} fiscalYear={fy} useFullFormat={useFullFormat} mobileDesktopView={mobileDesktopView} />
               ))}
             </>

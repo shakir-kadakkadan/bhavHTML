@@ -602,7 +602,7 @@ export const PnLGraph = () => {
                     </div>
 
                     {/* Day Labels and Calendar */}
-                    <div className="flex w-full" style={{ height: '200px' }}>
+                    <div className="flex w-full" style={{ height: '160px' }}>
                       {/* Day of week labels */}
                       <div className="pr-2 text-xs text-gray-600 dark:text-gray-400 flex flex-col" style={{ gap: '3px' }}>
                         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
