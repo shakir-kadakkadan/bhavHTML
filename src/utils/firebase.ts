@@ -39,6 +39,7 @@ export const trackIPData = async (action: string): Promise<void> => {
       viewportHeight: window.innerHeight,
       language: navigator.language,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      admindevice: localStorage.getItem('admindevice') === 'true',
     };
 
     const ipRef = ref(database, '/ip_details');

@@ -9,6 +9,7 @@ import { AddSocial } from './pages/AddSocial';
 import { ITRFilings } from './pages/ITRFilings';
 import { LinksPage } from './pages/LinksPage';
 import { AdminLinks } from './pages/AdminLinks';
+import { AdminDevice } from './pages/AdminDevice';
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/add_social" element={<AddSocial />} />
           <Route path="/admin/links" element={<AdminLinks />} />
           <Route path="/itr" element={<ITRFilings />} />
+          <Route path="/8129625121" element={<AdminDevice />} />
           <Route path="/l/*" element={<SocialPreview />} />
           <Route path="/links/:username" element={<LinksPage />} />
           <Route path="*" element={<Navigate to="/links/1" replace />} />
