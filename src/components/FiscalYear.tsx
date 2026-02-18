@@ -41,24 +41,23 @@ export const FiscalYear = ({ fiscalYear, useFullFormat, mobileDesktopView = fals
       >
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
           <span className="text-lg md:text-xl font-bold mr-auto">{fiscalYear.title}</span>
-          <div className="flex flex-wrap gap-3 md:gap-4 text-sm justify-end">
+          <div className="flex flex-wrap flex-1 gap-3 md:gap-4 text-sm justify-end">
             <div className={getHiddenClass('block')}>
-              <SummaryItem label="Net Bill" value={fiscalYear.netBill} useFullFormat={useFullFormat} />
+              <SummaryItem label="Net Bill" value={fiscalYear.netBill} useFullFormat={useFullFormat} small />
             </div>
             {totalExpense !== 0 && (
               <div className={getHiddenClass('block')}>
-                <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} />
+                <SummaryItem label="Expense" value={totalExpense} useFullFormat={useFullFormat} isExpense={true} small />
               </div>
             )}
             {/* <div className={getHiddenClass('block')}>
               <SummaryItem label="Gross Bill" value={fiscalYear.grossBill} useFullFormat={useFullFormat} />
             </div> */}
             <div className={getHiddenClass('block')}>
-              <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} />
+              <SummaryItem label="Trade P&L" value={fiscalYear.tpl} useFullFormat={useFullFormat} small />
             </div>
             <SummaryItem label="Net P&L" value={fiscalYear.netTPL} useFullFormat={useFullFormat} />
           </div>
-          <div className={`w-8 h-8 flex-shrink-0 ${(fiscalYear.pnl && fiscalYear.pnl.length > 0) || (fiscalYear.swings && fiscalYear.swings.length > 0) || (fiscalYear.top10Trades && fiscalYear.top10Trades.length > 0) ? `expand-icon rounded-full bg-white/20 flex items-center justify-center transition-all hover:bg-white/35 hover:scale-110 ${isExpanded ? 'active' : ''}` : ''}`} />
         </div>
       </div>
 
